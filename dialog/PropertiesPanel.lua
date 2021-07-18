@@ -427,6 +427,9 @@ end
 ---@param prototype_compare any
 ---@return boolean
 function PropertiesPanel:isSameLine(values, prototype_compare)
+  if table.size(prototype_compare) < 2 then
+    return false
+  end
   local is_same = true
   local compare = nil
   for index,prototype in pairs(prototype_compare) do
@@ -435,13 +438,50 @@ function PropertiesPanel:isSameLine(values, prototype_compare)
       if compare == nil then
         compare = values[key].value
       else
-        if values[key].value ~= compare then is_same = false end
+        is_same = PropertiesPanel.equals(compare, values[key].value, false)
+        if is_same == false then break end
       end
     end
   end
   return is_same
 end
 
+-------------------------------------------------------------------------------
+---Is same line
+---@param o1 table
+---@param o2 table
+---@param ignore_mt boolean
+---@return boolean
+function PropertiesPanel.equals(o1, o2, ignore_mt)
+  if o1 == o2 then return true end
+  local o1Type = type(o1)
+  local o2Type = type(o2)
+  if o1Type ~= o2Type then return false end
+  if o1Type ~= 'table' then return false end
+
+  if not ignore_mt then
+      local mt1 = getmetatable(o1)
+      if mt1 and mt1.__eq then
+          --compare using built in method
+          return o1 == o2
+      end
+  end
+
+  local keySet = {}
+
+  for key1, value1 in pairs(o1) do
+      local value2 = o2[key1]
+      if value2 == nil or PropertiesPanel.equals(value1, value2, ignore_mt) == false then
+          return false
+      end
+      keySet[key1] = true
+  end
+
+  for key2, _ in pairs(o2) do
+      if not keySet[key2] then return false end
+  end
+  return true
+end
 -------------------------------------------------------------------------------
 ---Get prototype data
 ---@param prototype table
