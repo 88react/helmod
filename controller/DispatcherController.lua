@@ -53,7 +53,7 @@ end
 ---@param classname string
 ---
 function DispatcherController:send(event_type, data, classname)
-  local ok , err = pcall(function()
+  local ok , err = xpcall(function()
     data.type = event_type
     if self.handlers[event_type] then
       for name, group in pairs(self.handlers[event_type]) do
@@ -68,7 +68,7 @@ function DispatcherController:send(event_type, data, classname)
         end
       end
     end
-  end)
+  end,debug.traceback)
   if not(ok) then
     Player.print(err)
     log(err)
