@@ -4,43 +4,42 @@
 RecipePrototype = newclass(Prototype,function(base, object, object_type)
   base.classname = "HMRecipePrototype"
   base.is_voider = nil
-  if object ~= nil then
-    if type(object) == "string" then
-      base.object_name = object
-      base.lua_type = object_type
-    elseif object.name ~= nil then
-      base.object_name = object.name
-      base.lua_type = object_type or object.type
-    end
-    if base.lua_type == nil or base.lua_type == "recipe" then
-      Prototype.init(base, Player.getRecipePrototype(base.object_name))
-      base.lua_type = "recipe"
-    elseif base.lua_type == "recipe-burnt" then
-      Prototype.init(base, Player.getRecipeBurnt(base.object_name))
-      base.lua_type = "recipe-burnt"
-    elseif base.lua_type == "energy" then
-      Prototype.init(base, Player.getRecipeEntity(base.object_name))
-      base.lua_type = "energy"
-    elseif base.lua_type == "resource" then
-      Prototype.init(base, Player.getRecipeEntity(base.object_name))
-      base.lua_type = "resource"
-    elseif base.lua_type == "fluid" then
-      Prototype.init(base, Player.getRecipeFluid(base.object_name))
-      base.lua_type = "fluid"
-    elseif base.lua_type == "technology" then
-      Prototype.init(base, Player.getTechnology(base.object_name))
-      base.lua_type = "technology"
-    elseif base.lua_type == "rocket" then
-      Prototype.init(base, Player.getRecipeRocket(base.object_name))
-      base.lua_type = "rocket"
-    end
-    if base.lua_prototype == nil then
-      Logging:error("HMRecipePrototype", "recipe not found", type(object), object)
-      Logging:line("HMRecipePrototype", 3)
-      Logging:line("HMRecipePrototype", 4)
-      Logging:line("HMRecipePrototype", 5)
-      Logging:line("HMRecipePrototype", 6)
-    end
+  if object == nil then return end
+  if type(object) == "string" then
+    base.object_name = object
+    base.lua_type = object_type
+  elseif object.name ~= nil then
+    base.object_name = object.name
+    base.lua_type = object_type or object.type
+  end
+  if base.lua_type == nil or base.lua_type == "recipe" then
+    Prototype.init(base, Player.getRecipePrototype(base.object_name))
+    base.lua_type = "recipe"
+  elseif base.lua_type == "recipe-burnt" then
+    Prototype.init(base, Player.getRecipeBurnt(base.object_name))
+    base.lua_type = "recipe-burnt"
+  elseif base.lua_type == "energy" then
+    Prototype.init(base, Player.getRecipeEntity(base.object_name))
+    base.lua_type = "energy"
+  elseif base.lua_type == "resource" then
+    Prototype.init(base, Player.getRecipeEntity(base.object_name))
+    base.lua_type = "resource"
+  elseif base.lua_type == "fluid" then
+    Prototype.init(base, Player.getRecipeFluid(base.object_name))
+    base.lua_type = "fluid"
+  elseif base.lua_type == "technology" then
+    Prototype.init(base, Player.getTechnology(base.object_name))
+    base.lua_type = "technology"
+  elseif base.lua_type == "rocket" then
+    Prototype.init(base, Player.getRecipeRocket(base.object_name))
+    base.lua_type = "rocket"
+  end
+  if base.lua_prototype == nil then
+    Logging:error("HMRecipePrototype", "recipe not found", type(object), object)
+    Logging:line("HMRecipePrototype", 3)
+    Logging:line("HMRecipePrototype", 4)
+    Logging:line("HMRecipePrototype", 5)
+    Logging:line("HMRecipePrototype", 6)
   end
 end)
 
@@ -201,16 +200,14 @@ function RecipePrototype:getEnergyProducts()
       local amount = prototype:getEnergyProduction()
       local product = {name="energy", type="energy", amount=amount}
       table.insert(products, product)
-    end
-    if prototype:getType() == "boiler" then
+    elseif prototype:getType() == "boiler" then
       local amount = prototype:getFluidProduction()
       local fluid_production = prototype:getFluidProductionFilter()
       if fluid_production ~= nil then
         local product = {name=fluid_production.name, type="fluid", amount=amount, by_time=true}
         table.insert(products, product)
       end
-    end
-    if prototype:getType() == "accumulator" then
+    elseif prototype:getType() == "accumulator" then
       local energy_prototype = prototype:getEnergySource()
       local capacity = energy_prototype:getBufferCapacity()
       ---vanilla day=25000,dusk=5000,night=2500,dawn=5000
@@ -227,18 +224,15 @@ function RecipePrototype:getEnergyProducts()
 
       local product = {name="energy", type="energy", amount=amount}
       table.insert(products, product)
-    end
-    if prototype:getType() == "generator" then
+    elseif prototype:getType() == "generator" then
       local amount = prototype:getEnergyProduction()
       local product = {name="energy", type="energy", amount=amount}
       table.insert(products, product)
-    end
-    if prototype:getType() == "reactor" then
+    elseif prototype:getType() == "reactor" then
       local amount = prototype:getEnergyConsumption()
       local product = {name="steam-heat", type="energy", amount=amount}
       table.insert(products, product)
-    end
-    if prototype:getType() == "offshore-pump" or prototype:getType() == "seafloor-pump" then
+    elseif prototype:getType() == "offshore-pump" then
       local amount = prototype:getPumpingSpeed()
       local product = {name="water", type="fluid", amount=amount, by_time=true}
       table.insert(products, product)

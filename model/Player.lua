@@ -107,12 +107,10 @@ function Player.getSmartTool()
   for i = 1, #inventory do
     local stack = inventory[i]
     if stack.valid_for_read and stack.is_blueprint and stack.name == "blueprint" and stack.label == "Helmod Smart Tool" then
-      if stack.is_blueprint_setup() then
-        if Lua_player.cursor_stack.swap_stack(stack) then
-            return Lua_player.cursor_stack
-        end
-      else
+      if not stack.is_blueprint_setup() then
         Lua_player.cursor_stack.swap_stack(stack)
+        return Lua_player.cursor_stack
+      elseif Lua_player.cursor_stack.swap_stack(stack) then
         return Lua_player.cursor_stack
       end
     end
@@ -199,7 +197,6 @@ function Player.setShortcutState(state)
   end
 end
 
-
 -------------------------------------------------------------------------------
 ---Return item type
 ---@param element LuaPrototype
@@ -231,67 +228,29 @@ end
 
 -------------------------------------------------------------------------------
 ---Return localised name
----@param element LuaPrototype
+---@param prototype LuaPrototype
 ---@return string|table
-function Player.getLocalisedName(element)
-  local localisedName = element.name
-  if element.type ~= nil then
-    if element.type == "recipe" or element.type == "recipe-burnt" then
-      local recipe = Player.getRecipe(element.name)
-      if recipe ~= nil then
-        localisedName = recipe.localised_name
-      end
-    end
-    if element.type == "technology" then
-      local technology = Player.getTechnology(element.name)
-      if technology ~= nil then
-        localisedName = technology.localised_name
-      end
-    end
-    if element.type == "entity" or element.type == "resource" then
-      local item = Player.getEntityPrototype(element.name)
-      if item ~= nil then
-        localisedName = item.localised_name
-      end
-    end
-    if element.type == 0 or element.type == "item" then
-      local item = Player.getItemPrototype(element.name)
-      if item ~= nil then
-        localisedName = item.localised_name
-      end
-    end
-    if element.type == 1 or element.type == "fluid" then
-      local item = Player.getFluidPrototype(element.name)
-      if item ~= nil then
-        localisedName = item.localised_name
-      end
-    end
+function Player.getLocalisedName(prototype)
+  local localisedName = prototype.name
+  if prototype.type == nil then
+    return localisedName
+  end
+  local element = nil
+  if prototype.type == "recipe" or prototype.type == "recipe-burnt" then
+    element = Player.getRecipe(prototype.name)
+  elseif prototype.type == "technology" then
+    element = Player.getTechnology(prototype.name)
+  elseif prototype.type == "entity" or prototype.type == "resource" then
+    element = Player.getEntityPrototype(prototype.name)
+  elseif prototype.type == 0 or prototype.type == "item" then
+    element = Player.getItemPrototype(prototype.name)
+  elseif prototype.type == 1 or prototype.type == "fluid" then
+    element = Player.getFluidPrototype(prototype.name)
+  end
+  if element ~= nil then
+    localisedName = element.localised_name
   end
   return localisedName
-end
-
--------------------------------------------------------------------------------
----Return localised name
----@param prototype LuaPrototype
----@return string|table
-function Player.getRecipeLocalisedName(prototype)
-  local element = Player.getRecipe(prototype.name)
-  if element ~= nil then
-    return element.localised_name
-  end
-  return prototype.name
-end
-
--------------------------------------------------------------------------------
----Return localised name
----@param prototype LuaPrototype
----@return string|table
-function Player.getTechnologyLocalisedName(prototype)
-  local element = Player.getTechnology(prototype.name)
-  if element ~= nil then
-    return element.localised_name
-  end
-  return element.name
 end
 
 -------------------------------------------------------------------------------
@@ -474,9 +433,9 @@ function Player.getProductionsCrafting(category, lua_recipe)
       productions[lua_entity.name] = lua_entity
     end
   else
-    for key, lua_entity in pairs(Player.getProductionMachines()) do
-      local check = false
-      if category ~= nil then
+    if category ~= nil then
+      for key, lua_entity in pairs(Player.getProductionMachines()) do
+        local check = false
         if not(rules_included[category]) and not(rules_included[category]) then
           ---standard recipe
           if lua_entity.crafting_categories ~= nil and lua_entity.crafting_categories[category] then
@@ -494,23 +453,39 @@ function Player.getProductionsCrafting(category, lua_recipe)
           ---resolve rule excluded
           check = Player.checkRules(check, rules_excluded, category, lua_entity, false)
         end
-      else
+        ---resource filter
+        if check then
+          if lua_recipe.name ~= nil then
+            local lua_entity_filter = Player.getEntityPrototype(lua_recipe.name)
+            if lua_entity_filter ~= nil and lua_entity.resource_categories ~= nil and not(lua_entity.resource_categories[lua_entity_filter.resource_category]) then
+              check = false
+            end
+          end
+        end
+        ---ok to add entity
+        if check then
+          productions[lua_entity.name] = lua_entity
+        end
+      end
+    else
+      for key, lua_entity in pairs(Player.getProductionMachines()) do
+        local check = false
         if lua_entity.group ~= nil and lua_entity.group.name == "production" then
           check = true
         end
-      end
-      ---resource filter
-      if check then
-        if lua_recipe.name ~= nil then
-          local lua_entity_filter = Player.getEntityPrototype(lua_recipe.name)
-          if lua_entity_filter ~= nil and lua_entity.resource_categories ~= nil and not(lua_entity.resource_categories[lua_entity_filter.resource_category]) then
-            check = false
+        ---resource filter
+        if check then
+          if lua_recipe.name ~= nil then
+            local lua_entity_filter = Player.getEntityPrototype(lua_recipe.name)
+            if lua_entity_filter ~= nil and lua_entity.resource_categories ~= nil and not(lua_entity.resource_categories[lua_entity_filter.resource_category]) then
+              check = false
+            end
           end
         end
-      end
-      ---ok to add entity
-      if check then
-        productions[lua_entity.name] = lua_entity
+        ---ok to add entity
+        if check then
+          productions[lua_entity.name] = lua_entity
+        end
       end
     end
   end
@@ -523,7 +498,7 @@ end
 function Player.getModules()
   local items = {}
   local filters = {}
-  table.insert(filters,{filter="type",type="module",mode="or"})
+  table.insert(filters,{filter="type",type="module"})
   table.insert(filters,{filter="flag",flag="hidden",mode="and", invert=true})
 
   for _,item in pairs(game.get_filtered_item_prototypes(filters)) do
@@ -537,7 +512,7 @@ end
 ---@return table
 function Player.getProductionMachines()
   local filters = {}
-  table.insert(filters,{filter="crafting-machine",mode="and"})
+  table.insert(filters,{filter="crafting-machine"})
   table.insert(filters,{filter="hidden",mode="and",invert=true})
   table.insert(filters,{filter="type", type="lab",mode="or"})
   table.insert(filters,{filter="type", type="mining-drill",mode="or"})
@@ -549,10 +524,10 @@ end
 ---Return list of energy machines
 ---@return table
 function Player.getEnergyMachines()
-    local filters = {}
+  local filters = {}
 
-  for _,type in pairs({"generator", "solar-panel", "boiler", "accumulator", "reactor", "offshore-pump", "seafloor-pump"}) do
-    table.insert(filters, {filter="type", mode="or", invert=false, type=type})
+  for _,type in pairs({"generator", "solar-panel", "boiler", "accumulator", "reactor", "offshore-pump"}) do
+    table.insert(filters, {filter="type", mode="or", type=type})
   end
   return game.get_filtered_entity_prototypes(filters)
 end
@@ -562,7 +537,7 @@ end
 ---@return table
 function Player.getBoilers()
   local filters = {}
-  table.insert(filters,{filter="type", type="boiler" ,mode="or"})
+  table.insert(filters,{filter="type", type="boiler"})
 
   return game.get_filtered_entity_prototypes(filters)
 end
@@ -573,7 +548,7 @@ end
 function Player.getOffshorePump(fluid_name)
   if fluid_name == nil then fluid_name = "water" end
   local filters = {}
-  table.insert(filters,{filter="type", type="offshore-pump" ,mode="or"})
+  table.insert(filters,{filter="type", type="offshore-pump"})
   local entities = game.get_filtered_entity_prototypes(filters)
   local offshore_pump = {}
   for key,entity in pairs(entities) do
@@ -840,7 +815,7 @@ end
 function Player.getProductionsBeacon()
   local items = {}
   local filters = {}
-  table.insert(filters,{filter="type",type="beacon",mode="or"})
+  table.insert(filters,{filter="type",type="beacon"})
   table.insert(filters,{filter="hidden",invert=true,mode="and"})
 
   for _,item in pairs(game.get_filtered_entity_prototypes(filters)) do
@@ -858,10 +833,10 @@ function Player.getGenerators(type)
   local items = {}
   local filters = {}
   if type == "primary" then
-    table.insert(filters,{filter="type",type="generator",mode="or"})
+    table.insert(filters,{filter="type",type="generator"})
     table.insert(filters,{filter="type",type="solar-panel",mode="or"})
   else
-    table.insert(filters,{filter="type",type="boiler",mode="or"})
+    table.insert(filters,{filter="type",type="boiler"})
     table.insert(filters,{filter="type",type="accumulator",mode="or"})
   end
 
@@ -968,7 +943,7 @@ end
 ---@return table
 function Player.getFluidFuelPrototypes()
   local filters = {}
-  table.insert(filters, {filter="fuel-value", mode="or", invert=false, comparison=">", value=0})
+  table.insert(filters, {filter="fuel-value", comparison=">", value=0})
   return Player.getFluidPrototypes(filters)
 end
 
@@ -979,13 +954,15 @@ end
 function Player.getItemsLogistic(type)
   local filters = {}
   if type == "inserter" then
-    filters = {{filter="type", mode="or", invert=false, type="inserter"}}
+    filters = {{filter="type", type="inserter"}}
   elseif type == "belt" then
-    filters = {{filter="type", mode="or", invert=false, type="transport-belt"}}
+    filters = {{filter="type", type="transport-belt"}}
   elseif type == "container" then
-    filters = {{filter="type", mode="or", invert=false, type="container"}, {filter="minable", mode="and", invert=false}, {filter="type", mode="or", invert=false, type="logistic-container"}, {filter="minable", mode="and", invert=false}}
+    filters = {{filter="type", type="container"}, {filter="minable", mode="and"},
+    {filter="type", mode="or", type="logistic-container"}, {filter="minable", mode="and"}}
   elseif type == "transport" then
-    filters = {{filter="type", mode="or", invert=false, type="cargo-wagon"}, {filter="type", mode="or", invert=false, type="logistic-robot"}, {filter="type", mode="or", invert=false, type="car"}}
+    filters = {{filter="type", type="cargo-wagon"}, {filter="type", mode="or", type="logistic-robot"},
+    {filter="type", mode="or", type="car"}}
   end
   return Player.getEntityPrototypes(filters)
 end
@@ -1013,11 +990,11 @@ end
 function Player.getFluidsLogistic(type)
   local filters = {}
   if type == "pipe" then
-    filters = {{filter="type", mode="or", invert=false, type="pipe"}}
+    filters = {{filter="type", type="pipe"}}
   elseif type == "container" then
-    filters = {{filter="type", mode="or", invert=false, type="storage-tank"}, {filter="minable", mode="and", invert=false}}
+    filters = {{filter="type", type="storage-tank"}, {filter="minable", mode="and"}}
   elseif type == "transport" then
-    filters = {{filter="type", mode="or", invert=false, type="fluid-wagon"}}
+    filters = {{filter="type", type="fluid-wagon"}}
   end
   return Player.getEntityPrototypes(filters)
 end
@@ -1028,7 +1005,7 @@ end
 ---@return table
 function Player.getDefaultFluidLogistic(type)
   local default = User.getParameter(string.format("fluids_logistic_%s", type))
-  if default == nil then 
+  if default == nil then
     local logistics = Player.getFluidsLogistic(type)
     if logistics ~= nil then
       default = first(logistics).name
@@ -1044,8 +1021,7 @@ end
 ---@return number
 function Player.parseNumber(number)
   if number == nil then return 0 end
-  local value = string.match(number,"[0-9.]*",1)
-  local power = string.match(number,"[0-9.]*([a-zA-Z]*)",1)
+  local value, power = string.match(number,"([0-9.]*)([a-zA-Z]*)",1)
   if power == nil then
     return tonumber(value)
   elseif string.lower(power) == "kw" then

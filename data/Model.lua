@@ -19,18 +19,15 @@ local Model = {
 ---@param bypass boolean
 ---@return table
 function Model.getModels(bypass)
+  local models = {}
+  if Model.countModel() < 1 then return models end
   local display_all_sheet = User.getModGlobalSetting("display_all_sheet")
   local first_id = nil
-  local models = {}
-  if Model.countModel() > 0 then
-    for _,model in pairs(global.models) do
-      if Player.isAdmin() and ( display_all_sheet or model.owner == "admin" or bypass ) then
-        models[model.id] = model
-        if first_id == nil then first_id = model.id end
-      elseif model.owner == Player.native().name or (model.share ~= nil and model.share > 0) then
-        models[model.id] = model
-        if first_id == nil then first_id = model.id end
-      end
+  for _,model in pairs(global.models) do
+    if (Player.isAdmin() and ( display_all_sheet or model.owner == "admin" or bypass )) or
+    (model.owner == Player.native().name or (model.share ~= nil and model.share > 0)) then
+      models[model.id] = model
+      if first_id == nil then first_id = model.id end
     end
   end
   return models
@@ -112,31 +109,29 @@ end
 ---@param parameter table --{name=parameter.name, model=model.id, block=block.id, recipe=recipe.id}
 ---@return table, table, table -- model, block, recipe
 function Model.getParameterObjects(parameter)
-  if parameter ~= nil then
-    if global.models == nil then
-      ---initialisation
-      global.models = {}
-      local model = Model.newModel()
-      User.setParameter(parameter.name, {name=parameter.name, model=model.id})
-      return model
-    end
-    if parameter.model ~= nil and global.models[parameter.model] ~= nil then
-      local model = global.models[parameter.model]
-      local block, recipe
-      if model ~= nil and parameter.block ~= nil and model.blocks ~= nil then
-        block = model.blocks[parameter.block]
-        if block ~= nil and parameter.recipe ~= nil and block.recipes ~= nil then
-          recipe = block.recipes[parameter.recipe]
-        end
+  if parameter == nil then
+  elseif global.models == nil then
+    ---initialisation
+    global.models = {}
+    local model = Model.newModel()
+    User.setParameter(parameter.name, {name=parameter.name, model=model.id})
+    return model
+  elseif parameter.model == nil or global.models[parameter.model] == nil then
+    ---initialisation parameter
+    local model = Model.getLastModel()
+    if model == nil then model = Model.newModel() end
+    User.setParameter(parameter.name, {name=parameter.name, model=model.id})
+    return model
+  else
+    local model = global.models[parameter.model]
+    local block, recipe
+    if model ~= nil and parameter.block ~= nil and model.blocks ~= nil then
+      block = model.blocks[parameter.block]
+      if block ~= nil and parameter.recipe ~= nil and block.recipes ~= nil then
+        recipe = block.recipes[parameter.recipe]
       end
-      return model, block, recipe
-    else
-      ---initialisation parameter
-      local model = Model.getLastModel()
-      if model == nil then model = Model.newModel() end
-      User.setParameter(parameter.name, {name=parameter.name, model=model.id})
-      return model
     end
+    return model, block, recipe
   end
 end
 

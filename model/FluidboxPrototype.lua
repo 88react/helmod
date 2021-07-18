@@ -8,30 +8,24 @@ FluidboxPrototype = newclass(Prototype)
 ---Is input
 ---@return boolean
 function FluidboxPrototype:isInput()
-  if self.lua_prototype ~= nil then
-    return self.lua_prototype.production_type ~= "output"
-  end
-  return false
+  if self.lua_prototype == nil then return false end
+  return self.lua_prototype.production_type ~= "output"
 end
 
 -------------------------------------------------------------------------------
 ---Is output
 ---@return boolean
 function FluidboxPrototype:isOutput()
-  if self.lua_prototype ~= nil then
-    return self.lua_prototype.production_type == "output"
-  end
-  return false
+  if self.lua_prototype == nil then return false end
+  return self.lua_prototype.production_type == "output"
 end
 
 -------------------------------------------------------------------------------
 ---Return filter
 ---@return string
 function FluidboxPrototype:getFilter()
-  if self.lua_prototype ~= nil then
-    return self.lua_prototype.filter
-  end
-  return nil
+  if self.lua_prototype == nil then return nil end
+  return self.lua_prototype.filter
 end
 
 -------------------------------------------------------------------------------

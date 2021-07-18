@@ -38,8 +38,6 @@ end
 ---Return stack size
 ---@return number
 function ItemPrototype:stackSize(index)
-  if self.lua_prototype ~= nil then
-    return self.lua_prototype.stack_size or 0
-  end
-  return 0
+  if self.lua_prototype == nil then return 0 end
+  return self.lua_prototype.stack_size or 0
 end

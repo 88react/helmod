@@ -134,7 +134,7 @@ function PrototypeFilters.initialization()
   PrototypeFilterEntity:addFilter("blueprintable")
   PrototypeFilterEntity:addFilter("item-to-place")
   PrototypeFilterEntity:addFilter("collision-mask")
-  
+
   local entity_flag={}
   entity_flag["not-rotatable"]=true
   entity_flag["placeable-neutral"]=true
@@ -289,8 +289,8 @@ function PrototypeFilters.initialization()
   PrototypeFilterRecipe:addFilter("emissions-multiplier", "comparison")
   PrototypeFilterRecipe:addFilter("request-paste-multiplier", "comparison")
   PrototypeFilterRecipe:addFilter("overload-multiplier", "comparison")
-  
-    -------------------------------------------------------------------------------
+
+  -------------------------------------------------------------------------------
   -------------------------------------------------------------------------------
   local PrototypeFilterTechnology = PrototypeFilters.addFilterType("technology")
   PrototypeFilterTechnology:addMapping({["research-unit-ingredient"]="ingredient"})

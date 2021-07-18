@@ -11,10 +11,8 @@ end)
 ---Return usage priority
 ---@return string
 function EnergySourcePrototype:getUsagePriority()
-  if self.lua_prototype ~= nil then
-    return "none"
-  end
-  return nil
+  if self.lua_prototype == nil then return nil end
+  return "none"
 end
 
 -------------------------------------------------------------------------------
@@ -28,10 +26,8 @@ end
 ---Return emissions
 ---@return number --default 0
 function EnergySourcePrototype:getEmissions()
-  if self.lua_prototype ~= nil then
-    return self.lua_prototype.emissions  or 2.7777777e-7
-  end
-  return 0
+  if self.lua_prototype == nil then return 0 end
+  return self.lua_prototype.emissions  or 2.7777777e-7
 end
 
 -------------------------------------------------------------------------------
@@ -45,10 +41,8 @@ end
 ---Return effectivity
 ---@return number --default 0
 function EnergySourcePrototype:getEffectivity()
-  if self.lua_prototype ~= nil then
-    return self.lua_prototype.effectivity or 1
-  end
-  return 0
+  if self.lua_prototype == nil then return 0 end
+  return self.lua_prototype.effectivity or 1
 end
 
 -------------------------------------------------------------------------------
@@ -96,50 +90,40 @@ end
 ---Return usage priority
 ---@return string
 function ElectricSourcePrototype:getUsagePriority()
-  if self.lua_prototype ~= nil then
-    return self.lua_prototype.usage_priority
-  end
-  return nil
+  if self.lua_prototype == nil then return nil end
+  return self.lua_prototype.usage_priority
 end
 
 -------------------------------------------------------------------------------
 ---Return buffer capacity
 ---@return number --default 0
 function ElectricSourcePrototype:getBufferCapacity()
-  if self.lua_prototype ~= nil then
-    return self.lua_prototype.buffer_capacity or 0
-  end
-  return 0
+  if self.lua_prototype == nil then return 0 end
+  return self.lua_prototype.buffer_capacity or 0
 end
 
 -------------------------------------------------------------------------------
 ---Return  drain energy
 ---@return number --default 0
 function ElectricSourcePrototype:getDrain()
-  if self.lua_prototype ~= nil then
-    return (self.lua_prototype.drain or 0) * 60
-  end
-  return 0
+  if self.lua_prototype == nil then return 0 end
+  return (self.lua_prototype.drain or 0) * 60
 end
 
 -------------------------------------------------------------------------------
 ---Return input flow limit
 ---@return number --default 0
 function ElectricSourcePrototype:getInputFlowLimit()
-  if self.lua_prototype ~= nil then
-    return (self.lua_prototype.input_flow_limit or 0) * 60
-  end
-  return 0
+  if self.lua_prototype == nil then return 0 end
+  return (self.lua_prototype.input_flow_limit or 0) * 60
 end
 
 -------------------------------------------------------------------------------
 ---Return output flow limit
 ---@return number --default 0
 function ElectricSourcePrototype:getOutputFlowLimit()
-  if self.lua_prototype ~= nil then
-    return (self.lua_prototype.output_flow_limit or 0) * 60
-  end
-  return 0
+  if self.lua_prototype == nil then return 0 end
+  return (self.lua_prototype.output_flow_limit or 0) * 60
 end
 
 -------------------------------------------------------------------------------
@@ -159,10 +143,8 @@ end
 ---Return fuel categories
 ---@return table
 function BurnerPrototype:getFuelCategories()
-  if self.lua_prototype ~= nil then
-    return self.lua_prototype.fuel_categories or {}
-  end
-  return {}
+  if self.lua_prototype == nil then return {} end
+  return self.lua_prototype.fuel_categories or {}
 end
 
 -------------------------------------------------------------------------------
@@ -306,10 +288,8 @@ end
 ---Return fluid usage per tick
 ---@return number --default 0
 function FluidSourcePrototype:getFluidUsagePerTick()
-  if self.lua_prototype ~= nil then
-    return self.lua_prototype.fluid_usage_per_tick or 0
-  end
-  return 0
+  if self.lua_prototype == nil then return 0 end
+  return self.lua_prototype.fluid_usage_per_tick or 0
 end
 
 -------------------------------------------------------------------------------
@@ -323,20 +303,16 @@ end
 ---Return burns fluid
 ---@return boolean
 function FluidSourcePrototype:getBurnsFluid()
-  if self.lua_prototype ~= nil then
-    return self.lua_prototype.burns_fluid or false
-  end
-  return false
+  if self.lua_prototype == nil then return false end
+  return self.lua_prototype.burns_fluid or false
 end
 
 -------------------------------------------------------------------------------
 ---Return fluidbox
 ---@return table
 function FluidSourcePrototype:getFluidbox()
-  if self.lua_prototype ~= nil then
-    return self.lua_prototype.fluid_box
-  end
-  return nil
+  if self.lua_prototype == nil then return nil end
+  return self.lua_prototype.fluid_box
 end
 
 -------------------------------------------------------------------------------

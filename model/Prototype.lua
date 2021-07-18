@@ -23,10 +23,8 @@ end
 ---Return localised name
 ---@return string
 function Prototype:getLocalisedName()
-  if self.lua_prototype ~= nil then
-    return self.lua_prototype.localised_name
-  end
-  return "unknow"
+  if self.lua_prototype == nil then return "unknow" end
+  return self.lua_prototype.localised_name
 end
 
 -------------------------------------------------------------------------------

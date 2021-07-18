@@ -196,7 +196,7 @@ function AbstractSelector:onBeforeOpen(event)
   end
 
   if event ~= nil and event.button ~= nil and event.button == defines.mouse_button_type.right then
-      User.setParameter("filter_prototype_product", false)
+    User.setParameter("filter_prototype_product", false)
   else
     User.setParameter("filter_prototype_product", true)
   end

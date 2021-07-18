@@ -13,54 +13,48 @@ Product.classname = "HMProduct"
 ---Return localised name of Prototype
 ---@return string
 function Product:getLocalisedName()
-  if self.lua_prototype ~= nil then
-    local localisedName = self.lua_prototype.name
-    if self.lua_prototype.type == 0 or self.lua_prototype.type == "item" then
-      local item = Player.getItemPrototype(self.lua_prototype.name)
-      if item ~= nil then
-        localisedName = item.localised_name
-      end
-    end
-    if self.lua_prototype.type == 1 or self.lua_prototype.type == "fluid" then
-      local item = Player.getFluidPrototype(self.lua_prototype.name)
-      if item ~= nil then
-        localisedName = item.localised_name
-      end
-    end
-    return localisedName
+  if self.lua_prototype == nil then return "unknow" end
+  local localisedName = self.lua_prototype.name
+  local item = nil
+  if self.lua_prototype.type == 0 or self.lua_prototype.type == "item" then
+    item = Player.getItemPrototype(self.lua_prototype.name)
   end
-  return "unknow"
+  if self.lua_prototype.type == 1 or self.lua_prototype.type == "fluid" then
+    item = Player.getFluidPrototype(self.lua_prototype.name)
+  end
+  if item ~= nil then
+    localisedName = item.localised_name
+  end
+  return localisedName
 end
 
 -------------------------------------------------------------------------------
 ---Return table key
 ---@return string
 function Product:getTableKey()
-  if self.lua_prototype ~= nil then
-    if self.lua_prototype.type == 1 or self.lua_prototype.type == "fluid" then
-      local T = self.lua_prototype.temperature
-      if T ~= nil then
-        return string.format("%s#%s", self.lua_prototype.name,T)
+  if self.lua_prototype == nil then return "unknow" end
+  if self.lua_prototype.type == 1 or self.lua_prototype.type == "fluid" then
+    local T = self.lua_prototype.temperature
+    if T ~= nil then
+      return string.format("%s#%s", self.lua_prototype.name,T)
+    end
+    local Tmin = self.lua_prototype.minimum_temperature 
+    local Tmax = self.lua_prototype.maximum_temperature
+    if Tmin ~= nil or Tmax ~= nil then
+      Tmin = Tmin or -1e300
+      Tmax = Tmax or 1e300
+      if Tmin < -1e300 and Tmax < 1e300 then
+        return string.format("%s#inf#%s", self.lua_prototype.name, Tmax)
       end
-      local Tmin = self.lua_prototype.minimum_temperature 
-      local Tmax = self.lua_prototype.maximum_temperature
-      if Tmin ~= nil or Tmax ~= nil then
-        Tmin = Tmin or -1e300
-        Tmax = Tmax or 1e300
-        if Tmin < -1e300 and Tmax < 1e300 then
-          return string.format("%s#inf#%s", self.lua_prototype.name, Tmax)
-        end
-        if Tmin > -1e300 and Tmax > 1e300 then
-          return string.format("%s#%s#inf", self.lua_prototype.name, Tmin)
-        end
-        if Tmin > -1e300 and Tmax < 1e300 then
-          return string.format("%s#%s#%s", self.lua_prototype.name, Tmin, Tmax)
-        end
+      if Tmin > -1e300 and Tmax > 1e300 then
+        return string.format("%s#%s#inf", self.lua_prototype.name, Tmin)
+      end
+      if Tmin > -1e300 and Tmax < 1e300 then
+        return string.format("%s#%s#%s", self.lua_prototype.name, Tmin, Tmax)
       end
     end
-    return self.lua_prototype.name
   end
-  return "unknow"
+  return self.lua_prototype.name
 end
 
 -------------------------------------------------------------------------------

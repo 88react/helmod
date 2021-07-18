@@ -36,15 +36,12 @@ end
 ---@param decimal number
 ---@return number --formated number
 function Format.round(val, decimal)
-  if (decimal) then
-    if decimal >= 0 then
-      return math.ceil( (val * 10^decimal)) / (10^decimal)
-    else
-      local decimal = math.abs(decimal)
-      return math.floor( (val * 10^decimal)) / (10^decimal)
-    end
+  if not(decimal) then return math.ceil(val) end
+  if decimal >= 0 then
+    return math.ceil( (val * 10^decimal)) / (10^decimal)
   else
-    return math.ceil(val)
+    local decimal = math.abs(decimal)
+    return math.floor( (val * 10^decimal)) / (10^decimal)
   end
 end
 
@@ -59,9 +56,9 @@ function Format.formatNumberKilo(value, suffix)
     return 0
   elseif value < 1000 then
     return Format.formatNumber(value).." "..suffix
-  elseif (value / 1000) < 1000 then
+  elseif value < (1000*1000) then
     return math.ceil(value*10 / 1000)/10 .. " k" ..suffix
-  elseif (value / (1000*1000)) < 1000 then
+  elseif value < (1000*1000*1000) then
     return math.ceil(value*10 / (1000*1000))/10 .. " M" ..suffix
   else
     return math.ceil(value*10 / (1000*1000*1000))/10 .. " G" ..suffix

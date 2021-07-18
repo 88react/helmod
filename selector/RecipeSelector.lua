@@ -98,7 +98,7 @@ end
 ---Update unlock recipes cache
 function RecipeSelector:updateUnlockRecipesCache()
   local unlock_recipes = {}
-  local filters = {{filter = "hidden", invert = true, mode = "or"},{filter = "has-effects", invert = false, mode = "and"}}
+  local filters = {{filter = "hidden", invert = true},{filter = "has-effects", mode = "and"}}
   local technology_prototypes = Player.getTechnologiePrototypes(filters)
   for _,technology in pairs(technology_prototypes) do
       local modifiers = technology.effects

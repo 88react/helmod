@@ -123,17 +123,16 @@ end
 ---@param list table
 ---@return table
 function table.data_info(list)
-  if type(list) == 'table' and type(list.__self) == 'userdata' and list.object_name then
-    local result = {}
+  if type(list) ~= 'table' then return end
+  local result = {}
+  if type(list.__self) == 'userdata' and list.object_name then
     for k, v in pairs(table.data_help(list)) do
       list[k] = {value=v,type=type(v)}
     end
-    return result
-  elseif type(list) == 'table' then
-    local result = {}
+  else
     for k, v in pairs(list) do
       result[k] = {value=v,type=type(v)}
     end
-    return result
   end
+  return result
 end

@@ -260,8 +260,7 @@ end
 ---Get the top panel
 ---@return LuaGuiElement
 function Form:getTopPanel()
-  local panel = self:getFrameDeepPanel("top")
-  return panel
+  return self:getFrameDeepPanel("top")
 end
 
 -------------------------------------------------------------------------------
@@ -309,10 +308,7 @@ end
 ---@return boolean
 function Form:isOpened()
   local parent_panel = self:getParentPanel()
-  if parent_panel[self:getPanelName()] ~= nil then
-    return true
-  end
-  return false
+  return parent_panel[self:getPanelName()] ~= nil
 end
 
 -------------------------------------------------------------------------------
@@ -407,53 +403,53 @@ end
 ---@param event LuaEvent
 function Form:updateTopMenu(event)
   ---ajoute un menu
-  if self.panelCaption ~= nil then
-    local flow_panel, content_panel, menu_panel = self:getPanel()
-    menu_panel.clear()
-    if self.panelClose then
-      ---pause game
-      if string.find(self.classname, "HMProductionPanel") then
-        local group3 = GuiElement.add(menu_panel, GuiFlowH("group3"))
-        if game.is_multiplayer() and not(game.tick_paused) then
-          local pause_button = GuiElement.add(group3, GuiButton("do-nothing"):sprite("menu", "play-white", "play"):style("helmod_frame_button"):tooltip({"helmod_button.game-play-multiplayer"}))
-          pause_button.enabled = false
-        else
-          if game.tick_paused then
-            GuiElement.add(group3, GuiButton(self.classname, "game-play"):sprite("menu", "pause", "pause"):style("helmod_frame_button_actived_red"):tooltip({"helmod_button.game-pause"}))
-          else
-            GuiElement.add(group3, GuiButton(self.classname, "game-pause"):sprite("menu", "play-white", "play"):style("helmod_frame_button"):tooltip({"helmod_button.game-play"}))
-          end
-        end
-      end
-
-      ---Tool button
-      local tool_group = GuiElement.add(menu_panel, GuiFlowH("tool_group"))
-      for _, form in pairs(Controller.getViews()) do
-        if self.add_special_button == true and form:isVisible() and form:isTool() then
-          local icon_hovered, icon = form:getButtonSprites()
-          GuiElement.add(tool_group, GuiButton(form.classname, "OPEN"):sprite("menu", icon_hovered, icon):style("helmod_frame_button"):tooltip(form.panelCaption))
-        end
-      end
-      
-      ---special tab
-      local special_group = GuiElement.add(menu_panel, GuiFlowH("special_group"))
-      for _, form in pairs(Controller.getViews()) do
-        if self.add_special_button == true and form:isVisible() and form:isSpecial() then
-          local icon_hovered, icon = form:getButtonSprites()
-          GuiElement.add(special_group, GuiButton(form.classname, "OPEN"):sprite("menu", icon_hovered, icon):style("helmod_frame_button"):tooltip(form.panelCaption))
-        end
-      end
-      ---Standard group
-      local standard_group = GuiElement.add(menu_panel, GuiFlowH("standard_group"))
-      if self.help_button then
-        GuiElement.add(standard_group, GuiButton("HMHelpPanel", "OPEN"):sprite("menu", "help-white", "help"):style("helmod_frame_button"):tooltip({"helmod_button.help"}))
-      end
-      GuiElement.add(standard_group, GuiButton(self.classname, "minimize-window"):sprite("menu", "minimize-window-white", "minimize-window"):style("helmod_frame_button"):tooltip({"helmod_button.minimize"}))
-      GuiElement.add(standard_group, GuiButton(self.classname, "maximize-window"):sprite("menu", "maximize-window-white", "maximize-window"):style("helmod_frame_button"):tooltip({"helmod_button.maximize"}))
-      GuiElement.add(standard_group, GuiButton(self.classname, "CLOSE"):sprite("menu", "close-window-white", "close-window"):style("helmod_frame_button"):tooltip({"helmod_button.close"}))
-    end
-  else
+  if self.panelCaption == nil then
     Logging:warn(self.classname, "self.panelCaption not found")
+    return
+  end
+  local flow_panel, content_panel, menu_panel = self:getPanel()
+  menu_panel.clear()
+  if self.panelClose then
+    ---pause game
+    if string.find(self.classname, "HMProductionPanel") then
+      local group3 = GuiElement.add(menu_panel, GuiFlowH("group3"))
+      if game.is_multiplayer() and not(game.tick_paused) then
+        local pause_button = GuiElement.add(group3, GuiButton("do-nothing"):sprite("menu", "play-white", "play"):style("helmod_frame_button"):tooltip({"helmod_button.game-play-multiplayer"}))
+        pause_button.enabled = false
+      else
+        if game.tick_paused then
+          GuiElement.add(group3, GuiButton(self.classname, "game-play"):sprite("menu", "pause", "pause"):style("helmod_frame_button_actived_red"):tooltip({"helmod_button.game-pause"}))
+        else
+          GuiElement.add(group3, GuiButton(self.classname, "game-pause"):sprite("menu", "play-white", "play"):style("helmod_frame_button"):tooltip({"helmod_button.game-play"}))
+        end
+      end
+    end
+
+    ---Tool button
+    local tool_group = GuiElement.add(menu_panel, GuiFlowH("tool_group"))
+    for _, form in pairs(Controller.getViews()) do
+      if self.add_special_button == true and form:isVisible() and form:isTool() then
+        local icon_hovered, icon = form:getButtonSprites()
+        GuiElement.add(tool_group, GuiButton(form.classname, "OPEN"):sprite("menu", icon_hovered, icon):style("helmod_frame_button"):tooltip(form.panelCaption))
+      end
+    end
+    
+    ---special tab
+    local special_group = GuiElement.add(menu_panel, GuiFlowH("special_group"))
+    for _, form in pairs(Controller.getViews()) do
+      if self.add_special_button == true and form:isVisible() and form:isSpecial() then
+        local icon_hovered, icon = form:getButtonSprites()
+        GuiElement.add(special_group, GuiButton(form.classname, "OPEN"):sprite("menu", icon_hovered, icon):style("helmod_frame_button"):tooltip(form.panelCaption))
+      end
+    end
+    ---Standard group
+    local standard_group = GuiElement.add(menu_panel, GuiFlowH("standard_group"))
+    if self.help_button then
+      GuiElement.add(standard_group, GuiButton("HMHelpPanel", "OPEN"):sprite("menu", "help-white", "help"):style("helmod_frame_button"):tooltip({"helmod_button.help"}))
+    end
+    GuiElement.add(standard_group, GuiButton(self.classname, "minimize-window"):sprite("menu", "minimize-window-white", "minimize-window"):style("helmod_frame_button"):tooltip({"helmod_button.minimize"}))
+    GuiElement.add(standard_group, GuiButton(self.classname, "maximize-window"):sprite("menu", "maximize-window-white", "maximize-window"):style("helmod_frame_button"):tooltip({"helmod_button.maximize"}))
+    GuiElement.add(standard_group, GuiButton(self.classname, "CLOSE"):sprite("menu", "close-window-white", "close-window"):style("helmod_frame_button"):tooltip({"helmod_button.close"}))
   end
 end
 
@@ -515,18 +511,16 @@ end
 ---Get tips
 ---@return string
 function Form:getTips()
+  if self.list_tips == nil then return nil end
   local list_tips = {}
-  if self.list_tips ~= nil then
-    for _,tips in pairs(self.list_tips) do
-      for line = 1, tips.count, 1 do
-        local localised_text = {string.format("helmod_help.%s-%s", tips.name, line)}
-        table.insert(list_tips, localised_text)
-      end
+  for _,tips in pairs(self.list_tips) do
+    for line = 1, tips.count, 1 do
+      local localised_text = {string.format("helmod_help.%s-%s", tips.name, line)}
+      table.insert(list_tips, localised_text)
     end
-    local index = math.random(#list_tips)
-    return list_tips[index]
   end
-  return nil
+  local index = math.random(#list_tips)
+  return list_tips[index]
 end
 -------------------------------------------------------------------------------
 ---Update tips

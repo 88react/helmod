@@ -345,7 +345,7 @@ function PropertiesPanel:parseProperties(prototype, level, prototype_type)
       return FluidboxPrototype(prototype):toData()
     end
   
-    local help_string = string.gmatch(prototype:help(),"(%S+) [[](RW?)[]]")
+    local help_string = string.gmatch(prototype:help(),"(%S+) %[(RW?)%]")
     local properties = {}
     for key, chmod in help_string do
       local value = nil

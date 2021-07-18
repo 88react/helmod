@@ -22,15 +22,14 @@ function ModelBuilder.addRecipeIntoProductionBlock(model, block, recipe_name, re
     local block_types = true
     ---ajoute le bloc si il n'existe pas
     if block == nil or (block.isEnergy ~= true and recipe_type == "energy") or (block.isEnergy == true and recipe_type ~= "energy") then
-      local modelBlock = Model.newBlock(model, lua_recipe)
+      block = Model.newBlock(model, lua_recipe)
       local block_index = table.size(model.blocks)
-      modelBlock.isEnergy = recipe_type == "energy"
-      modelBlock.index = block_index
-      modelBlock.unlinked = false
-      block = modelBlock
-      model.blocks[modelBlock.id] = modelBlock
+      block.isEnergy = recipe_type == "energy"
+      block.index = block_index
+      block.unlinked = false
+      model.blocks[block.id] = block
       ---check si le block est independant
-      ModelCompute.checkUnlinkedBlock(model, modelBlock)
+      ModelCompute.checkUnlinkedBlock(model, block)
       block_types = false
     end
 
@@ -76,36 +75,36 @@ function ModelBuilder.addRecipeIntoProductionBlock(model, block, recipe_name, re
     end
     block.recipes[ModelRecipe.id] = ModelRecipe
 
-    if recipe_type ~= "energy" then
-      local default_factory = User.getDefaultFactory(ModelRecipe)
-      if default_factory ~= nil then
-        Model.setFactory(ModelRecipe, default_factory.name, default_factory.fuel)
-      else
-        local default_factory_name = Model.getDefaultPrototypeFactory(recipe_prototype)
-        if default_factory_name ~= nil then
-          Model.setFactory(ModelRecipe, default_factory_name)
-        end
-      end
-      local default_factory_module = User.getDefaultFactoryModule(ModelRecipe)
-      if default_factory_module ~= nil then
-        ModelBuilder.setFactoryModulePriority(ModelRecipe, default_factory_module)
-      end
-  
-      local default_beacon = User.getDefaultBeacon(ModelRecipe)
-      if default_beacon ~= nil then
-        Model.setBeacon(ModelRecipe, default_beacon.name, default_beacon.combo, default_beacon.per_factory, default_beacon.per_factory_constant)
-      else
-        local default_beacon_name = Model.getDefaultRecipeBeacon(lua_recipe.name)
-        if default_beacon_name ~= nil then
-          Model.setBeacon(ModelRecipe, default_beacon_name)
-        end
-      end
-      local default_beacon_module = User.getDefaultBeaconModule(ModelRecipe)
-      if default_beacon_module ~= nil then
-        ModelBuilder.setBeaconModulePriority(ModelRecipe, default_beacon_module)
-      end
-    else
+    if recipe_type == "energy" then
       Model.setFactory(ModelRecipe, recipe_name)
+      return block, ModelRecipe
+    end
+    local default_factory = User.getDefaultFactory(ModelRecipe)
+    if default_factory ~= nil then
+      Model.setFactory(ModelRecipe, default_factory.name, default_factory.fuel)
+    else
+      local default_factory_name = Model.getDefaultPrototypeFactory(recipe_prototype)
+      if default_factory_name ~= nil then
+        Model.setFactory(ModelRecipe, default_factory_name)
+      end
+    end
+    local default_factory_module = User.getDefaultFactoryModule(ModelRecipe)
+    if default_factory_module ~= nil then
+      ModelBuilder.setFactoryModulePriority(ModelRecipe, default_factory_module)
+    end
+
+    local default_beacon = User.getDefaultBeacon(ModelRecipe)
+    if default_beacon ~= nil then
+      Model.setBeacon(ModelRecipe, default_beacon.name, default_beacon.combo, default_beacon.per_factory, default_beacon.per_factory_constant)
+    else
+      local default_beacon_name = Model.getDefaultRecipeBeacon(lua_recipe.name)
+      if default_beacon_name ~= nil then
+        Model.setBeacon(ModelRecipe, default_beacon_name)
+      end
+    end
+    local default_beacon_module = User.getDefaultBeaconModule(ModelRecipe)
+    if default_beacon_module ~= nil then
+      ModelBuilder.setBeaconModulePriority(ModelRecipe, default_beacon_module)
     end
 
     return block, ModelRecipe
@@ -218,32 +217,30 @@ end
 ---@param block table
 ---@param recipe table
 function ModelBuilder.updateMatrixSolver(block, recipe)
-  if block ~= nil then
-    local recipes = block.recipes
-    local sorter = function(t,a,b) return t[b].index > t[a].index end
-    if block.by_product == false then
-      sorter = function(t,a,b) return t[b].index < t[a].index end
+  if block == nil then return end
+  local recipes = block.recipes
+  local sorter = function(t,a,b) return t[b].index > t[a].index end
+  if block.by_product == false then
+    sorter = function(t,a,b) return t[b].index < t[a].index end
+  end
+  local apply = false
+  local matrix_solver = 0
+  for _, current_recipe in spairs(recipes,sorter) do
+    if apply == true and current_recipe.matrix_solver == matrix_solver then
+      apply = false
     end
-    local apply = false
-    local matrix_solver = 0
-    for _, current_recipe in spairs(recipes,sorter) do
-      if apply == true and current_recipe.matrix_solver == matrix_solver then
-        apply = false
-      end
-      if apply == true and current_recipe.matrix_solver ~= matrix_solver then
-        current_recipe.matrix_solver = matrix_solver
-      end
-      if current_recipe.id == recipe.id then
-        if current_recipe.matrix_solver == 0 then
-          matrix_solver = 1
-        else
-          matrix_solver = 0
-        end
-        current_recipe.matrix_solver = matrix_solver
-        apply = true
-      end
+    if apply == true and current_recipe.matrix_solver ~= matrix_solver then
+      current_recipe.matrix_solver = matrix_solver
     end
-    
+    if current_recipe.id == recipe.id then
+      if current_recipe.matrix_solver == 0 then
+        matrix_solver = 1
+      else
+        matrix_solver = 0
+      end
+      current_recipe.matrix_solver = matrix_solver
+      apply = true
+    end
   end
 end
 
