@@ -1,12 +1,14 @@
 -------------------------------------------------------------------------------
 ---Class to build product edition dialog
 ---@class LogisticEdition
-LogisticEdition = newclass(Form)
+LogisticEdition = newclass(Form,function(base,classname)
+  Form.init(base,classname)
+  base.panelCaption = ({"helmod_panel.logistic-edition"})
+end)
 
 -------------------------------------------------------------------------------
 ---On initialization
 function LogisticEdition:onInit()
-  self.panelCaption = ({"helmod_panel.logistic-edition"})
 end
 
 -------------------------------------------------------------------------------

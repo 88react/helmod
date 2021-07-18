@@ -4,6 +4,8 @@
 UnitTestPanel = newclass(Form,function(base,classname)
   Form.init(base,classname)
   base.add_special_button = true
+  base.panelCaption = ({"helmod_result-panel.tab-button-unittest"})
+  base.help_button = false
 end)
 
 local data = require "unit_test.Data"
@@ -14,8 +16,6 @@ local data_space_ecploration = require "unit_test.DataSpaceExploration"
 -------------------------------------------------------------------------------
 ---On initialization
 function UnitTestPanel:onInit()
-  self.panelCaption = ({"helmod_result-panel.tab-button-unittest"})
-  self.help_button = false
 end
 
 -------------------------------------------------------------------------------

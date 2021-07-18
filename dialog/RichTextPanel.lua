@@ -1,13 +1,15 @@
 -------------------------------------------------------------------------------
 ---Class to build pin tab dialog
 ---@class RichTextPanel
-RichTextPanel = newclass(Form)
+RichTextPanel = newclass(Form,function(base,classname)
+  Form.init(base,classname)
+  base.panelCaption = ({"helmod_panel.richtext"})
+  base.otherClose = false
+end)
 
 -------------------------------------------------------------------------------
 ---On initialization
 function RichTextPanel:onInit()
-  self.panelCaption = ({"helmod_panel.richtext"})
-  self.otherClose = false
 end
 
 -------------------------------------------------------------------------------

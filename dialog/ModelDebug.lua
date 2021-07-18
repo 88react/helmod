@@ -1,14 +1,16 @@
 -------------------------------------------------------------------------------
 ---Class to build ModelDebug panel
 ---@class ModelDebug
-ModelDebug = newclass(FormModel)
+ModelDebug = newclass(FormModel,function(base,classname)
+  FormModel.init(base,classname)
+  base.panelCaption = "Model Debug"
+end)
 
 local display_panel = nil
 
 -------------------------------------------------------------------------------
 ---Initialization
 function ModelDebug:onInit()
-  self.panelCaption = "Model Debug"
 end
 
 -------------------------------------------------------------------------------

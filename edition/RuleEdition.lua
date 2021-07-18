@@ -1,13 +1,15 @@
 -------------------------------------------------------------------------------
 ---Class to build rule edition dialog
 ---@class RuleEdition
-RuleEdition = newclass(Form)
+RuleEdition = newclass(Form,function(base,classname)
+  Form.init(base,classname)
+  base.panelCaption = ({"helmod_rule-edition-panel.title"})
+  base.parameterLast = string.format("%s_%s",classname,"last")
+end)
 
 -------------------------------------------------------------------------------
 ---On initialization
 function RuleEdition:onInit()
-  self.panelCaption = ({"helmod_rule-edition-panel.title"})
-  self.parameterLast = string.format("%s_%s",self.classname,"last")
 end
 
 -------------------------------------------------------------------------------

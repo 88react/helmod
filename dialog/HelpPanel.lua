@@ -1,7 +1,11 @@
 -------------------------------------------------------------------------------
 ---Class to build HelpPanel panel
 ---@class HelpPanel
-HelpPanel = newclass(Form)
+HelpPanel = newclass(Form,function(base,classname)
+  Form.init(base,classname)
+  base.panelCaption = ({"helmod_help.panel-title"})
+  base.help_button = false
+end)
 
 local page_list = {}
 
@@ -271,8 +275,6 @@ help_data.tips.content.production_block = {
 -------------------------------------------------------------------------------
 ---On initialization
 function HelpPanel:onInit()
-  self.panelCaption = ({"helmod_help.panel-title"})
-  self.help_button = false
 end
 
 -------------------------------------------------------------------------------

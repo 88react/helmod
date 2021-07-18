@@ -4,6 +4,8 @@
 PrototypeFiltersPanel = newclass(Form,function(base,classname)
   Form.init(base,classname)
   base.add_special_button = true
+  base.panelCaption = ({"helmod_result-panel.tab-button-prototype-filters"})
+  base.help_button = false
 end)
 
 local modes = nil
@@ -83,8 +85,6 @@ table.insert(samples, sample)
 -------------------------------------------------------------------------------
 ---On initialization
 function PrototypeFiltersPanel:onInit()
-  self.panelCaption = ({"helmod_result-panel.tab-button-prototype-filters"})
-  self.help_button = false
 end
 
 -------------------------------------------------------------------------------

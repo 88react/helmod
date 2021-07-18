@@ -1,14 +1,16 @@
 -------------------------------------------------------------------------------
 ---Class to build settings panel
 ---@class Settings
-Settings = newclass(Form)
+Settings = newclass(Form,function(base,classname)
+  Form.init(base,classname)
+  base.panelCaption = ({"helmod_settings-panel.title"})
+end)
 
 local dropdown = {}
 
 -------------------------------------------------------------------------------
 ---On initialization
 function Settings:onInit()
-  self.panelCaption = ({"helmod_settings-panel.title"})
 end
 
 -------------------------------------------------------------------------------

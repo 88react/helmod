@@ -5,12 +5,12 @@ ProductionPanel = newclass(FormModel,function(base,classname)
   FormModel.init(base,classname)
   base.add_special_button = true
   base.has_tips = true
+  base.panelCaption = string.format("%s %s","Helmod",game.active_mods["helmod"])
 end)
 
 -------------------------------------------------------------------------------
 ---On initialization
 function ProductionPanel:onInit()
-  self.panelCaption = string.format("%s %s","Helmod",game.active_mods["helmod"])
 end
 
 -------------------------------------------------------------------------------

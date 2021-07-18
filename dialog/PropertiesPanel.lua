@@ -4,13 +4,13 @@
 PropertiesPanel = newclass(Form,function(base,classname)
   Form.init(base,classname)
   base.add_special_button = true
+  base.panelCaption = ({"helmod_result-panel.tab-button-properties"})
+  base.help_button = false
 end)
 
 -------------------------------------------------------------------------------
 ---On initialization
 function PropertiesPanel:onInit()
-  self.panelCaption = ({"helmod_result-panel.tab-button-properties"})
-  self.help_button = false
 end
 
 -------------------------------------------------------------------------------

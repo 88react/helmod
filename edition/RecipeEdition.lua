@@ -1,7 +1,11 @@
 -------------------------------------------------------------------------------
 ---Class to build recipe edition dialog
 ---@class RecipeEdition
-RecipeEdition = newclass(FormModel)
+RecipeEdition = newclass(FormModel,function(base,classname)
+  FormModel.init(base,classname)
+  base.panelCaption = ({"helmod_recipe-edition-panel.title"})
+  base.parameterLast = string.format("%s_%s",classname,"last")
+end)
 
 local limit_display_height = 850
 local tool_spacing = 2
@@ -28,8 +32,6 @@ end
 -------------------------------------------------------------------------------
 ---On initialization
 function RecipeEdition:onInit()
-  self.panelCaption = ({"helmod_recipe-edition-panel.title"})
-  self.parameterLast = string.format("%s_%s",self.classname,"last")
 end
 
 -------------------------------------------------------------------------------

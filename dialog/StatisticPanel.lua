@@ -1,12 +1,14 @@
 -------------------------------------------------------------------------------
 ---Class to build pin tab dialog
 ---@class StatisticPanel
-StatisticPanel = newclass(Form)
+StatisticPanel = newclass(Form,function(base,classname)
+  Form.init(base,classname)
+  base.panelCaption = ({"helmod_result-panel.tab-button-statistic"})
+end)
 
 -------------------------------------------------------------------------------
 ---On initialization
 function StatisticPanel:onInit()
-  self.panelCaption = ({"helmod_result-panel.tab-button-statistic"})
 end
 
 ------------------------------------------------------------------------------

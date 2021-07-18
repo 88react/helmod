@@ -1,14 +1,16 @@
 -------------------------------------------------------------------------------
 ---Class to build RecipeExplorer panel
 ---@class RecipeExplorer
-RecipeExplorer = newclass(Form)
+RecipeExplorer = newclass(Form,function(base,classname)
+  Form.init(base,classname)
+  base.panelCaption = ({"helmod_recipe-explorer-panel.title"})
+end)
 
 local display_panel = nil
 
 -------------------------------------------------------------------------------
 ---Initialization
 function RecipeExplorer:onInit()
-  self.panelCaption = ({"helmod_recipe-explorer-panel.title"})
 end
 
 -------------------------------------------------------------------------------

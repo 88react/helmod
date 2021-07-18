@@ -1,12 +1,14 @@
 -------------------------------------------------------------------------------
 ---Class to build product edition dialog
 ---@class PreferenceEdition
-PreferenceEdition = newclass(Form)
+PreferenceEdition = newclass(Form,function(base,classname)
+  Form.init(base,classname)
+  base.panelCaption = ({"helmod_preferences-edition-panel.title"})
+end)
 
 -------------------------------------------------------------------------------
 ---On initialization
 function PreferenceEdition:onInit()
-  self.panelCaption = ({"helmod_preferences-edition-panel.title"})
 end
 
 -------------------------------------------------------------------------------

@@ -8,6 +8,10 @@
 AbstractSelector = newclass(FormModel,function(base,classname)
   FormModel.init(base,classname)
   base.auto_clear = false
+  base.panelCaption = base:getCaption() ---obligatoire sinon le panneau ne s'affiche pas
+  base.sprite_type = "item-group"
+  base:afterInit()
+  base.parameterTarget = string.format("%s_%s",classname,"target")
 end)
 
 -------------------------------------------------------------------------------
@@ -90,10 +94,6 @@ end
 -------------------------------------------------------------------------------
 ---On initialization
 function AbstractSelector:onInit()
-  self.panelCaption = self:getCaption() ---obligatoire sinon le panneau ne s'affiche pas
-  self.sprite_type = "item-group"
-  self:afterInit()
-  self.parameterTarget = string.format("%s_%s",self.classname,"target")
 end
 
 -------------------------------------------------------------------------------

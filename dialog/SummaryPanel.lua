@@ -1,13 +1,15 @@
 -------------------------------------------------------------------------------
 ---Class to build summary dialog
 ---@class SummaryPanel
-SummaryPanel = newclass(FormModel)
+SummaryPanel = newclass(FormModel,function(base,classname)
+  FormModel.init(base,classname)
+  base.panelCaption = ({"helmod_result-panel.tab-title-summary"})
+  base.otherClose = false
+end)
 
 -------------------------------------------------------------------------------
 ---On initialization
 function SummaryPanel:onInit()
-  self.panelCaption = ({"helmod_result-panel.tab-title-summary"})
-  self.otherClose = false
 end
 
 -------------------------------------------------------------------------------

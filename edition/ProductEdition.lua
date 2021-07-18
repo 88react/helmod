@@ -1,12 +1,14 @@
 -------------------------------------------------------------------------------
 ---Class to build product edition dialog
 ---@class ProductEdition
-ProductEdition = newclass(FormModel)
+ProductEdition = newclass(FormModel,function(base,classname)
+  FormModel.init(base,classname)
+  base.panelCaption = ({"helmod_product-edition-panel.title"})
+end)
 
 -------------------------------------------------------------------------------
 ---On initialization
 function ProductEdition:onInit()
-  self.panelCaption = ({"helmod_product-edition-panel.title"})
 end
 
 -------------------------------------------------------------------------------

@@ -1,14 +1,16 @@
 -------------------------------------------------------------------------------
 ---Class to build Download panel
 ---@class Download
-Download = newclass(FormModel)
+Download = newclass(FormModel,function(base,classname)
+  FormModel.init(base,classname)
+  base.panelCaption = ({"helmod_download-panel.title"})
+end)
 
 local transfert_mode = nil
 
 -------------------------------------------------------------------------------
 ---Initialization
 function Download:onInit()
-  self.panelCaption = ({"helmod_download-panel.title"})
 end
 
 -------------------------------------------------------------------------------

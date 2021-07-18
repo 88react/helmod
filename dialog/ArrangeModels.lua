@@ -1,12 +1,14 @@
 -------------------------------------------------------------------------------
 ---Class to build ArrangeModels panel
 ---@class Form
-ArrangeModels = newclass(Form)
+ArrangeModels = newclass(Form,function(base,classname)
+  Form.init(base,classname)
+  base.panelCaption = ({"helmod_panel.arrange-models"})
+end)
 
 -------------------------------------------------------------------------------
 ---Initialization
 function ArrangeModels:onInit()
-  self.panelCaption = ({"helmod_panel.arrange-models"})
 end
 
 -------------------------------------------------------------------------------

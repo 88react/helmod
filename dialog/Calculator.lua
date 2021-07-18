@@ -1,14 +1,16 @@
 -------------------------------------------------------------------------------
 ---Class to build Calculator panel
 ---@class Calculator
-Calculator = newclass(Form)
+Calculator = newclass(Form,function(base,classname)
+  Form.init(base,classname)
+  base.panelCaption = ({"helmod_calculator-panel.title"})
+end)
 
 local display_panel = nil
 
 -------------------------------------------------------------------------------
 ---Initialization
 function Calculator:onInit()
-  self.panelCaption = ({"helmod_calculator-panel.title"})
 end
 
 -------------------------------------------------------------------------------

@@ -1,7 +1,11 @@
 -------------------------------------------------------------------------------
 ---Class to build pin dialog
 ---@class PinPanel
-PinPanel = newclass(FormModel)
+PinPanel = newclass(FormModel,function(base,classname)
+  FormModel.init(base,classname)
+  base.panelCaption = ({"helmod_pin-tab-panel.title"})
+  base.otherClose = false
+end)
 
 local display_pin_level_min = 0
 local display_pin_level_max = 4
@@ -23,8 +27,6 @@ end
 -------------------------------------------------------------------------------
 ---On initialization
 function PinPanel:onInit()
-  self.panelCaption = ({"helmod_pin-tab-panel.title"})
-  self.otherClose = false
 end
 
 -------------------------------------------------------------------------------
