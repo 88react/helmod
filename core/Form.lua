@@ -359,8 +359,10 @@ function Form:onFormEvent(event)
   local flow_panel, content_panel, menu_panel = self:getPanel()
   if event.action == "minimize-window" then
     content_panel.visible = false
-    flow_panel.style.height = 50
-    flow_panel.style.minimal_width = 100
+    if self.styles ~= nil and self.styles.flow_panel ~= nil then
+      flow_panel.style.height = 50
+      flow_panel.style.minimal_width = 100
+    end
   end
   if event.action == "maximize-window" then
     content_panel.visible = true

@@ -234,7 +234,8 @@ function RecipePrototype:getEnergyProducts()
       table.insert(products, product)
     elseif prototype:getType() == "offshore-pump" then
       local amount = prototype:getPumpingSpeed()
-      local product = {name="water", type="fluid", amount=amount, by_time=true}
+      local fluid = prototype.lua_prototype.fluid.name
+      local product = {name=fluid, type="fluid", amount=amount, by_time=true}
       table.insert(products, product)
     end
     return products

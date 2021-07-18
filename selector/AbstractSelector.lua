@@ -710,15 +710,22 @@ function AbstractSelector.updateGroupSelector(self, event)
     if User.getParameter("recipe_group_selected") == group.name then
       color = "yellow"
     end
-    if group.name ~= "helmod" then
+    if group.name == "helmod" then
+      local tooltip = "Helmod"
+      ---ajoute les icons de groupe
+      local action = GuiElement.add(gui_group_panel, GuiButtonSelectSpriteXxl(self.classname, "recipe-group", group.name):sprite("menu", "group"):tooltip(tooltip):color(color))
+    elseif group.name == "normal" or group.name == "infinite" then
+      local tooltip = group.name
+      if color ~= nil then
+        local action = GuiElement.add(gui_group_panel, GuiButton(self.classname, "recipe-group", group.name):style("helmod_button_selected"):caption( group.name):tooltip(tooltip))
+      else
+        local action = GuiElement.add(gui_group_panel, GuiButton(self.classname, "recipe-group", group.name):style("helmod_button_default"):caption( group.name):tooltip(tooltip))
+      end
+    else
       --local tooltip = {"", "item-group-name."..group.name, "\nOrder=", group.order, "\nOrder in recipe=", group.order_in_recipe}
       local tooltip = {"item-group-name."..group.name}
       ---ajoute les icons de groupe
       local action = GuiElement.add(gui_group_panel, GuiButtonSelectSpriteXxl(self.classname, "recipe-group"):sprite(self.sprite_type, group.name):tooltip(tooltip):color(color))
-    else
-      local tooltip = "Helmod"
-      ---ajoute les icons de groupe
-      local action = GuiElement.add(gui_group_panel, GuiButtonSelectSpriteXxl(self.classname, "recipe-group", group.name):sprite("menu", "group"):tooltip(tooltip):color(color))
     end
   end
 
