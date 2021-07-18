@@ -104,13 +104,11 @@ function PrototypeFilters.initialization()
   -------------------------------------------------------------------------------
   local PrototypeFilterEntity = PrototypeFilters.addFilterType("entity")
   PrototypeFilterEntity:addMapping({["crafting-category"]="crafting_category"})
-
-  PrototypeFilterEntity:addFilter("type", Player.getEntityPrototypeTypes())
+  PrototypeFilterEntity:addFilter("type", Player.getPrototypeTypes("entity"))
   PrototypeFilterEntity:addFilter("name")
   PrototypeFilterEntity:addFilter("flying-robot")
   PrototypeFilterEntity:addFilter("robot-with-logistics-interface")
   PrototypeFilterEntity:addFilter("rail")
-  PrototypeFilterEntity:addFilter("particle")
   PrototypeFilterEntity:addFilter("ghost")
   PrototypeFilterEntity:addFilter("explosion")
   PrototypeFilterEntity:addFilter("vehicle")
@@ -150,7 +148,7 @@ function PrototypeFilters.initialization()
   entity_flag["not-on-map"]=true
   entity_flag["not-deconstructable"]=true
   entity_flag["not-blueprintable"]=true
-  entity_flag["hide-from-bonus-gui"]=true
+  entity_flag["hidden"]=true
   entity_flag["hide-alt-info"]=true
   entity_flag["fast-replaceable-no-cross-type-while-moving"]=true
   entity_flag["no-gap-fill-while-building"]=true
@@ -170,22 +168,24 @@ function PrototypeFilters.initialization()
   -------------------------------------------------------------------------------
   local PrototypeFilterItem = PrototypeFilters.addFilterType("item")
   PrototypeFilterItem:addMapping(nil)
-  PrototypeFilterItem:addFilter("type", Player.getItemPrototypeTypes())
+  PrototypeFilterItem:addFilter("type", Player.getPrototypeTypes("item"))
   PrototypeFilterItem:addFilter("name")
   PrototypeFilterItem:addFilter("tool")
   PrototypeFilterItem:addFilter("mergeable")
   PrototypeFilterItem:addFilter("item-with-inventory")
   PrototypeFilterItem:addFilter("selection-tool")
   PrototypeFilterItem:addFilter("item-with-label")
+  PrototypeFilterItem:addFilter("has-rocket-launch-products")
   PrototypeFilterItem:addFilter("fuel")
-  PrototypeFilterItem:addFilter("place-as-tile")
-  PrototypeFilterItem:addFilter("place-result")
-  PrototypeFilterItem:addFilter("placed-as-equipment-result")
-  PrototypeFilterItem:addFilter("burnt-result")
-  PrototypeFilterItem:addFilter("show-in-blueprint-library")
+  PrototypeFilterItem:addFilter("place-result")--elem_filters :: array[EntityPrototypeFilter] (optional):
+  PrototypeFilterItem:addFilter("burnt-result")--elem_filters :: array[ItemPrototypeFilter] (optional):
+  PrototypeFilterItem:addFilter("place-as-tile")--elem_filters :: array[TilePrototypeFilter] (optional):
+  PrototypeFilterItem:addFilter("placed-as-equipment-result")--elem_filters :: array[EquipmentPrototypeFilter] (optional):
 
   local item_flag = {}
+  item_flag["draw-logistic-overlay"] = true
   item_flag["hidden"] = true
+  item_flag["always-show"] = true
   item_flag["hide-from-bonus-gui"] = true
   item_flag["hide-from-fuel-tooltip"] = true
   item_flag["not-stackable"] = true
@@ -206,16 +206,16 @@ function PrototypeFilters.initialization()
 
   -------------------------------------------------------------------------------
   -------------------------------------------------------------------------------
-  local PrototypeFilterEquipement = PrototypeFilters.addFilterType("equipment")
-  PrototypeFilterEquipement:addMapping(nil)
-  PrototypeFilterEquipement:addFilter("type")
-  PrototypeFilterEquipement:addFilter("item-to-place")
+  local PrototypeFilterEquipment = PrototypeFilters.addFilterType("equipment")
+  PrototypeFilterEquipment:addMapping(nil)
+  PrototypeFilterEquipment:addFilter("type", Player.getPrototypeTypes("equipment"))
+  PrototypeFilterEquipment:addFilter("item-to-place")
 
   -------------------------------------------------------------------------------
   -------------------------------------------------------------------------------
   local PrototypeFilterModSetting = PrototypeFilters.addFilterType("mod")
   PrototypeFilterModSetting:addMapping({["setting-type"]="type"})
-  PrototypeFilterModSetting:addFilter("type")
+  PrototypeFilterModSetting:addFilter("type", Player.getPrototypeTypes("mod"))
   PrototypeFilterModSetting:addFilter("mod")
   local setting_type = {}
   setting_type["startup"] = true
@@ -227,7 +227,7 @@ function PrototypeFilters.initialization()
   -------------------------------------------------------------------------------
   local PrototypeFilterAchievement = PrototypeFilters.addFilterType("achievement")
   PrototypeFilterAchievement:addMapping(nil)
-  PrototypeFilterAchievement:addFilter("type")
+  PrototypeFilterAchievement:addFilter("type", Player.getPrototypeTypes("achievement"))
   PrototypeFilterAchievement:addFilter("allowed-without-fight")
 
   -------------------------------------------------------------------------------
@@ -270,7 +270,6 @@ function PrototypeFilters.initialization()
   -------------------------------------------------------------------------------
   local PrototypeFilterRecipe = PrototypeFilters.addFilterType("recipe")
   PrototypeFilterRecipe:addMapping(nil)
-  PrototypeFilterRecipe:addFilter("name")
   PrototypeFilterRecipe:addFilter("enabled")
   PrototypeFilterRecipe:addFilter("hidden")
   PrototypeFilterRecipe:addFilter("hidden-from-flow-stats")
@@ -283,6 +282,10 @@ function PrototypeFilters.initialization()
   PrototypeFilterRecipe:addFilter("show-amount-in-title")
   PrototypeFilterRecipe:addFilter("has-ingredients")
   PrototypeFilterRecipe:addFilter("has-products")
+  PrototypeFilterRecipe:addFilter("has-ingredient-item")--elem_filters :: array[ItemPrototypeFilter] (optional):
+  PrototypeFilterRecipe:addFilter("has-ingredient-fluid")--elem_filters :: array[FluidPrototypeFilter] (optional):
+  PrototypeFilterRecipe:addFilter("has-product-item")--elem_filters :: array[ItemPrototypeFilter] (optional):
+  PrototypeFilterRecipe:addFilter("has-product-fluid")--elem_filters :: array[FluidPrototypeFilter] (optional):
   PrototypeFilterRecipe:addFilter("subgroup", game.item_subgroup_prototypes)
   PrototypeFilterRecipe:addFilter("category", game.recipe_category_prototypes)
   PrototypeFilterRecipe:addFilter("energy", "comparison")

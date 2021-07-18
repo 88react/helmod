@@ -789,18 +789,6 @@ function Player.getEntityPrototypes(filters)
 end
 
 -------------------------------------------------------------------------------
----Return entity prototype types
----@return table
-function Player.getEntityPrototypeTypes()
-  local types = {}
-  for _,entity in pairs(game.entity_prototypes) do
-    local type = entity.type
-    types[type] = true
-  end
-  return types
-end
-
--------------------------------------------------------------------------------
 ---Return entity prototype
 ---@param name string
 ---@return LuaEntityPrototype
@@ -874,11 +862,46 @@ function Player.getItemPrototypes(filters)
 end
 
 -------------------------------------------------------------------------------
----Return item prototype types
+---Return list prototype types
+---@param type_proto string item, equipment, entity, fluid, mod, achievement
 ---@return table
-function Player.getItemPrototypeTypes()
+function Player.getPrototypeTypes(type_proto)
+  local prototypes = {}
   local types = {}
-  for _,entity in pairs(game.item_prototypes) do
+  if type_proto == "item" then
+    prototypes = game.item_prototypes
+  elseif type_proto == "equipment" then
+    prototypes = game.equipment_prototypes
+  elseif type_proto == "entity" then
+    prototypes = game.entity_prototypes
+  elseif type_proto == "fluid" then
+    prototypes = game.fluid_prototypes
+  elseif type_proto == "mod" then
+    types["bool-setting"] = true
+    types["int-setting"] = true
+    types["double-setting"] = true
+    types["string-setting"] = true
+    return types
+  elseif type_proto == "achievement" then
+    types["build-entity-achievement"] = true
+    types["combat-robot-count"] = true
+    types["construct-with-robots-achievement"] = true
+    types["deconstruct-with-robots-achievement"] = true
+    types["deliver-by-robots-achievement"] = true
+    types["dont-build-entity-achievement"] = true
+    types["dont-craft-manually-achievement"] = true
+    types["dont-use-entity-in-energy-production-achievement"] = true
+    types["finish-the-game-achievement"] = true
+    types["group-attack-achievement"] = true
+    types["kill-achievement"] = true
+    types["player-damaged-achievement"] = true
+    types["produce-achievement"] = true
+    types["produce-per-hour-achievement"] = true
+    types["research-achievement"] = true
+    types["train-path-achievement"] = true
+    return types
+  end
+  for _,entity in pairs(prototypes) do
     local type = entity.type
     types[type] = true
   end
@@ -903,18 +926,6 @@ function Player.getFluidPrototypes(filters)
     return game.get_filtered_fluid_prototypes(filters)
   end
   return game.fluid_prototypes
-end
-
--------------------------------------------------------------------------------
----Return fluid prototype types
----@return table
-function Player.getFluidPrototypeTypes()
-  local types = {}
-  for _,entity in pairs(game.fluid_prototypes) do
-    local type = entity.type
-    types[type] = true
-  end
-  return types
 end
 
 -------------------------------------------------------------------------------

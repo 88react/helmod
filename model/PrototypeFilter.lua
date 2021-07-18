@@ -79,8 +79,10 @@ function PrototypeFilter:getElements(filters)
   if self.mapping ~= nil then
     for key,filter in pairs(filters) do
       for key, name in pairs(self.mapping) do
-        filter[name] = filter[key]
-        filter[key] = nil
+        if filter[key] then
+          filter[name] = filter[key]
+          filter[key] = nil
+        end
       end
     end
   end
