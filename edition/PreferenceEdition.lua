@@ -224,7 +224,7 @@ function PreferenceEdition:updateUI(event)
           if view ~= nil then
             local localised_name = view.panelCaption
             local default_preference_name = User.getPreferenceSetting(preference_type, preference_name)
-            GuiElement.add(options_table, GuiLabel(self.classname, "label", preference_type, preference_name):caption({"", "\t\t\t\t", helmod_tag.color.gold, localised_name, helmod_tag.color.close}))
+            GuiElement.add(options_table, GuiLabel(self.classname, "label", preference_type, preference_name):caption({"", "    ", helmod_tag.color.gold, localised_name, helmod_tag.color.close}))
             local checkbox = GuiElement.add(options_table, GuiCheckBox(self.classname, "preference-setting", preference_type, preference_name):state(default_preference_name))
             if default_preference_type ~= true then
               checkbox.enabled = false
