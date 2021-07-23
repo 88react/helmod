@@ -200,7 +200,7 @@ helmod_preferences = {
       HMRuleEdition = false,
       HMPreferenceEdition = false,
   
-      HMEnergySelector = true,
+      --HMEnergySelector = true,
       HMEntitySelector = true,
       HMRecipeSelector = true,
       HMTechnologySelector = true,
@@ -221,7 +221,7 @@ helmod_preferences = {
       HMRuleEdition = false,
       HMPreferenceEdition = false,
   
-      HMEnergySelector = true,
+      --HMEnergySelector = true,
       HMEntitySelector = true,
       HMRecipeSelector = true,
       HMTechnologySelector = true,

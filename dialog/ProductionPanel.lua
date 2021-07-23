@@ -316,7 +316,7 @@ function ProductionPanel:updateSubMenuLeftPanel(model, block)
   if block ~= nil then block_id = block.id end
   GuiElement.add(group_selector, GuiButton("HMRecipeSelector", "OPEN", model.id, block_id):sprite("menu", "wrench", "wrench"):style("helmod_button_menu_actived_green"):tooltip({"helmod_result-panel.add-button-recipe"}))
   GuiElement.add(group_selector, GuiButton("HMTechnologySelector", "OPEN", model.id, block_id):sprite("menu", "graduation", "graduation"):style("helmod_button_menu_actived_green"):tooltip({"helmod_result-panel.add-button-technology"}))
-  GuiElement.add(group_selector, GuiButton("HMEnergySelector", "OPEN", model.id, block_id):sprite("menu", "nuclear","nuclear"):style("helmod_button_menu_actived_green"):tooltip({"helmod_result-panel.select-button-energy"}))
+  -- GuiElement.add(group_selector, GuiButton("HMEnergySelector", "OPEN", model.id, block_id):sprite("menu", "nuclear","nuclear"):style("helmod_button_menu_actived_green"):tooltip({"helmod_result-panel.select-button-energy"}))
 
   ---delete button
   local group_delete = GuiElement.add(left_panel, GuiFlowH("group_delete"))
@@ -1416,9 +1416,9 @@ end
 ---@param block table
 function ProductionPanel:onEventAccessWrite(event, model, block)
   local selector_name = "HMRecipeSelector"
-  if block ~= nil and block.isEnergy then
-    selector_name = "HMEnergySelector"
-  end
+  -- if block ~= nil and block.isEnergy then
+  --   selector_name = "HMEnergySelector"
+  -- end
 
   if event.action == "change-boolean-option" and block ~= nil then
     ModelBuilder.updateProductionBlockOption(block, event.item1, not(block[event.item1]))

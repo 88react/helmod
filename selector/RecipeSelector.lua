@@ -46,7 +46,6 @@ end
 ---@param list_translate table
 function RecipeSelector:appendGroups(element, type, list_products, list_ingredients, list_translate)
   local prototype = self:getPrototype(element, type)
-  local has_burnt_result = false
 
   local lua_prototype = prototype:native()
   local prototype_name = string.format("%s-%s",type , lua_prototype.name)
@@ -56,7 +55,6 @@ function RecipeSelector:appendGroups(element, type, list_products, list_ingredie
     
     local product = Product(raw_product)
     local localised_name = product:getLocalisedName()
-    has_burnt_result = product:hasBurntResult()
     if localised_name ~= nil and localised_name ~= "unknow" then
       list_translate[raw_product.name] = localised_name
     end
@@ -65,7 +63,6 @@ function RecipeSelector:appendGroups(element, type, list_products, list_ingredie
     if list_ingredients[raw_ingredient.name] == nil then list_ingredients[raw_ingredient.name] = {} end
     list_ingredients[raw_ingredient.name][prototype_name] = {name=lua_prototype.name, group=lua_prototype.group.name, subgroup=lua_prototype.subgroup.name, type=type, order=lua_prototype.order}
   end
-  return has_burnt_result
 end
 
 -------------------------------------------------------------------------------
@@ -76,13 +73,7 @@ end
 function RecipeSelector:updateGroups(list_products, list_ingredients, list_translate)
   RecipeSelector:updateUnlockRecipesCache()
   for key, recipe in pairs(Player.getRecipePrototypes()) do
-    local has_burnt_result = self:appendGroups(recipe, "recipe", list_products, list_ingredients, list_translate)
-    if has_burnt_result == true then
-      self:appendGroups(recipe, "recipe-burnt", list_products, list_ingredients, list_translate)
-    end
-  end
-  for key, fluid in pairs(Player.getFluidPrototypes()) do
-    self:appendGroups(fluid, "fluid", list_products, list_ingredients, list_translate)
+    self:appendGroups(recipe, "recipe", list_products, list_ingredients, list_translate)
   end
   for key, resource in pairs(Player.getResources()) do
     self:appendGroups(resource, "resource", list_products, list_ingredients, list_translate)
@@ -91,6 +82,9 @@ function RecipeSelector:updateGroups(list_products, list_ingredients, list_trans
     if item.rocket_launch_products ~= nil and table.size(item.rocket_launch_products) > 0 then
       self:appendGroups(item, "rocket", list_products, list_ingredients, list_translate)
     end
+  end
+  for key, entity in pairs(Player.getEnergyMachines()) do
+    self:appendGroups(entity, "energy", list_products, list_ingredients, list_translate)
   end
 end
 
@@ -118,11 +112,62 @@ end
 
 
 -------------------------------------------------------------------------------
+---Build prototype tooltip
+---@param prototype table
+---@return table
+function RecipeSelector:buildPrototypeTooltip(prototype)
+  if prototype.type ~= "energy" then
+    local tooltip = ""
+    return tooltip
+  end
+  ---initalize tooltip
+  local recipe_prototype = RecipePrototype(prototype.name, "energy")
+  local entity_prototype = EntityPrototype(prototype)
+  local energy_name = entity_prototype:getLocalisedName()
+  local tooltip = {""}
+  table.insert(tooltip, energy_name)
+  --table.insert(tooltip, {"", "\n",entity_prototype:getType()})
+  ---products
+  if table.size(recipe_prototype:getProducts()) > 0 then
+    table.insert(tooltip, {"", "\n", helmod_tag.font.default_bold, helmod_tag.color.gold, {"helmod_common.products"}, ":", helmod_tag.color.close, helmod_tag.font.close})
+    for _,product in pairs(recipe_prototype:getProducts()) do
+      if product.type == "energy" and product.name == "energy" then
+          table.insert(tooltip, {"", "\n", "[img=helmod-energy-white]", helmod_tag.font.default_bold, " x ", Format.formatNumberKilo(product.amount,"W"), helmod_tag.font.close})
+      elseif product.type == "energy" and product.name == "steam-heat" then
+          table.insert(tooltip, {"", "\n", "[img=helmod-steam-heat-white]", helmod_tag.font.default_bold, " x ", Format.formatNumberKilo(product.amount,"W"), helmod_tag.font.close})
+      else
+        table.insert(tooltip, {"", "\n", string.format("[%s=%s]", product.type, product.name), helmod_tag.font.default_bold, " x ", Format.formatNumberElement(product.amount), helmod_tag.font.close})
+      end
+    end
+  end
+  ---ingredients
+  if table.size(recipe_prototype:getIngredients()) > 0 then
+    table.insert(tooltip, {"", "\n", helmod_tag.font.default_bold, helmod_tag.color.gold, {"helmod_common.ingredients"}, ":", helmod_tag.color.close, helmod_tag.font.close})
+    for _,ingredient in pairs(recipe_prototype:getIngredients()) do
+      if ingredient.type == "energy" and ingredient.name == "energy" then
+        table.insert(tooltip, {"", "\n", "[img=helmod-energy-white]", helmod_tag.font.default_bold, " x ", Format.formatNumberKilo(ingredient.amount,"W"), helmod_tag.font.close})
+      elseif ingredient.type == "energy" and ingredient.name == "steam-heat" then
+        table.insert(tooltip, {"", "\n", "[img=helmod-steam-heat-white]", helmod_tag.font.default_bold, " x ", Format.formatNumberKilo(ingredient.amount,"W"), helmod_tag.font.close})
+      else
+        table.insert(tooltip, {"", "\n", string.format("[%s=%s]", ingredient.type, ingredient.name), helmod_tag.font.default_bold, " x ", Format.formatNumberElement(ingredient.amount), helmod_tag.font.close})
+      end
+    end
+  end
+  return tooltip
+end
+
+-------------------------------------------------------------------------------
 ---Create prototype icon
 ---@param gui_element GuiLuaElement
 ---@param prototype table
 ---@param tooltip table
 function RecipeSelector:buildPrototypeIcon(gui_element, prototype, tooltip)
+  if prototype.type == "energy" then 
+    local button = GuiElement.add(gui_element, GuiButtonSelectSprite(self.classname, "element-select", "energy"):choose("entity", prototype.name):color():tooltip(tooltip))
+    button.locked = true
+    GuiElement.infoRecipe(button, prototype)
+    return
+  end
   local model, block, recipe = self:getParameterObjects()
   local recipe_prototype = self:getPrototype(prototype)
   local color = nil

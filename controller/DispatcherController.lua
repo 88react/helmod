@@ -55,16 +55,11 @@ end
 function DispatcherController:send(event_type, data, classname)
   local ok , err = xpcall(function()
     data.type = event_type
-    if self.handlers[event_type] then
-      for name, group in pairs(self.handlers[event_type]) do
-        local valid = true
-        if classname ~= nil and classname ~= name then
-          valid = false
-        end
-        if valid then
-          for _,handler in pairs(group.handlers) do
-            handler(group.class, data)
-          end
+    if not(self.handlers[event_type]) then return end
+    for name, group in pairs(self.handlers[event_type]) do
+      if classname == nil or classname == name then
+        for _,handler in pairs(group.handlers) do
+          handler(group.class, data)
         end
       end
     end
