@@ -138,7 +138,7 @@ function Controller:on_init()
   if not User.getModGlobalSetting("filter_translated_string_active") then
     table.insert(need_translate,"special")
     for key, value in pairs(need_translate) do
-      global.translation.prototype_categories[key] = {}
+      global.translation.prototype_categories[value] = {}
     end
     return
   end
