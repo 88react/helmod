@@ -24,14 +24,13 @@ end
 ---Update groups
 ---@param list_products table
 ---@param list_ingredients table
----@param list_translate table
-function ContainerSelector:updateGroups(list_products, list_ingredients, list_translate)
+function ContainerSelector:updateGroups(list_products, list_ingredients)
   local filters = {}
   for _,type in pairs({"storage-tank", "container", "logistic-container", "cargo-wagon", "fluid-wagon", "item-with-entity-data", "car", "logistic-robot", "transport-belt"}) do
     table.insert(filters, {filter="type", mode="or", invert=false, type=type})
   end
   for key, entity in pairs(Player.getEntityPrototypes(filters)) do
-    self:appendGroups(entity, "entity", list_products, list_ingredients, list_translate)
+    self:appendGroups(entity, "entity", list_products, list_ingredients)
   end
 end
 

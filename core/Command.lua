@@ -49,9 +49,6 @@ function Command.parse(event)
       Player.print("All User UIs are reseted!")
     elseif string.lower(event.parameters) == "resetcaches" then
       Player.print("Command removed! please use Administration panel!")
-    elseif string.lower(event.parameters) == "resettranslate" then
-      User.resetTranslate()
-      Player.print("User translate are reseted!")
     elseif string.lower(event.parameters) == "exportdata" then
       Logging.limit = 10
       game.write_file("helmod\\data.json", Logging:objectToString(global), false)
@@ -62,7 +59,7 @@ function Command.parse(event)
       Player.print("Model exported!")
     elseif string.lower(event.parameters) == "exporttranslate" then
       Logging.limit = 10
-      game.write_file("helmod\\translate.json", Logging:objectToString(User.get("translated")), false)
+      game.write_file("helmod\\translate.json", Logging:objectToString(global.translation.strings), false)
       Player.print("Translate exported!")
     elseif string.lower(event.parameters) == "exportdatauser" then
       Logging.limit = 10

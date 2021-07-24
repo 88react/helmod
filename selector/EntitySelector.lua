@@ -36,10 +36,9 @@ end
 ---Update groups
 ---@param list_products table
 ---@param list_ingredients table
----@param list_translate table
-function EntitySelector:updateGroups(list_products, list_ingredients, list_translate)
+function EntitySelector:updateGroups(list_products, list_ingredients)
   for key, entity in pairs(Player.getEntityPrototypes()) do
-    self:appendGroups(entity, "entity", list_products, list_ingredients, list_translate)
+    self:appendGroups(entity, "entity", list_products, list_ingredients)
   end
 end
 

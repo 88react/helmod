@@ -177,11 +177,19 @@ function AbstractSelector:onBeforeOpen(event)
   end
   
   if event.item4 ~= nil and event.item4 ~= "" then
+    local filter = event.item4
     if User.isFilterTranslate()  then
-      User.setParameter("filter_prototype", User.getTranslate(event.item4))
-    else
-      User.setParameter("filter_prototype", event.item4)
+      local language = global.players[event.player_index].language
+      local categories = global.translation.prototype_categories
+      if categories.item[filter] then
+        filter = categories.item[filter][language] or filter
+      elseif categories.fluid[filter] then
+        filter = categories.fluid[filter][language] or filter
+      elseif categories.special[filter] then
+        filter = categories.special[filter][language] or filter
+      end
     end
+    User.setParameter("filter_prototype", filter)
     if event.reset ~= true then
       event.reset = true
       self:resetGroups()
@@ -328,16 +336,11 @@ function AbstractSelector:prepare(event)
   if Cache.isEmpty(self.classname, "list_ingredients") then
     local list_products = {}
     local list_ingredients = {}
-    local list_translate = {}
 
-    self:updateGroups(list_products, list_ingredients, list_translate)
+    self:updateGroups(list_products, list_ingredients)
 
     Cache.setData(self.classname, "list_products", list_products)
     Cache.setData(self.classname, "list_ingredients", list_ingredients)
-
-    if User.getModGlobalSetting("filter_translated_string_active") then
-      Cache.setData(self.classname, "list_translate", list_translate)
-    end
   end
 end
 
@@ -346,41 +349,38 @@ end
 ---@param event LuaEvent
 function AbstractSelector:translate(event)
   ---List du cache non vide
-  if not(Cache.isEmpty(self.classname, "list_translate")) then
+  local lang = global.players[event.player_index].language
+  local lang_data = global.translation.languages[lang]
+  local next_event = nil
+  if table.size(lang_data.queue) > 0 then
     ---bluid table translate
-    if User.getModGlobalSetting("filter_translated_string_active") and not(User.isTranslate()) and event.continue ~= true then
-      local list_translate = Cache.getData(self.classname, "list_translate")
-      local table_translate = {}
-      local step_translate = User.getModGlobalSetting("user_cache_step") or 100
-      local index = 0
+    if event.continue ~= true and User.getModGlobalSetting("filter_translated_string_active") then
       event.continue = true
-      local query_translate
-      for item_name,localised_name in pairs(list_translate) do
-        if index % step_translate == 0 then
-          query_translate = {index=index,list_translate={}}
-          table.insert(table_translate, query_translate)
-        end
-        table.insert(query_translate.list_translate, localised_name)
-        index = index + 1
-      end
-      event.table_translate = table_translate
       return User.createNextEvent(event, self.classname, "translate")
     end
     ---execute loop
     if event.continue and event.method == "translate" then
-      local query_translate = table.remove(event.table_translate)
-      self:updateWaitMessage(string.format("Wait translate: %s", query_translate.index or 0))
-      for _,localised_name in pairs(query_translate.list_translate) do
-        Player.native().request_translation(localised_name)
+      local strings = global.translation.strings
+      self:updateWaitMessage(string.format("Wait translate: %s", table.size(lang_data.queue) or 0))
+      local step_translate = User.getModGlobalSetting("user_cache_step") or 100
+      local index = 0
+      for key, value in pairs(lang_data.queue) do
+        game.players[event.player_index].request_translation(strings[key].localised)
+        lang_data.queue[key] = nil
+        lang_data.requested[key] = true
+        index = index + 1
+        if index == step_translate then
+          break
+        end
       end
-      if #event.table_translate > 0 then
-        return User.createNextEvent(event, self.classname, "translate")
+      if table.size(lang_data.queue) > 0 then
+        next_event = event
       else
         event.continue = false
       end
     end
   end
-  return User.createNextEvent(nil, self.classname, "translate")
+  return User.createNextEvent(next_event, self.classname, "translate")
 end
 
 -------------------------------------------------------------------------------
@@ -412,11 +412,31 @@ function AbstractSelector:onUpdate(event)
 ---Check filter
 ---@param search string
 ---@return boolean
-function AbstractSelector:checkFilter(search)
+function AbstractSelector:checkFilter(search, player_index)
   local filter_prototype = self:getFilter()
   if filter_prototype ~= nil and filter_prototype ~= "" then
     if User.isFilterTranslate()  then
-      search = User.getTranslate(search)
+      local all = {HMEntitySelector="enity", HMRecipeSelector="recipe",
+      HMTechnologySelector="technology", HMItemSelector="item", HMFluidSelector="fluid"}
+      local translated = search
+      local language = global.players[player_index].language
+      local categories = global.translation.prototype_categories
+      local target = all[self.classname]
+      if self.classname == "HMRecipeSelector" then
+        --ingidients or porducts
+        if categories.item[search] then
+          translated = categories.item[search][language] or translated
+        elseif categories.fluid[search] then
+          translated = categories.fluid[search][language] or translated
+        elseif categories.special[search] then
+          translated = categories.special[search][language] or translated
+        else
+          log(search)
+        end
+      elseif categories[target][search]then
+        translated = categories[target][search][language] or translated
+      end
+      search = translated
     end
     if User.isFilterContain() then
       return string.find(search:lower(), filter_prototype:lower(), 1, true)
@@ -550,7 +570,7 @@ function AbstractSelector:createElementLists(event)
 
     for key, element in pairs(query_list.list) do
       ---filter sur le nom element (product ou ingredient)
-      if self:checkFilter(key) then
+      if self:checkFilter(key, event.player_index) then
         for element_name, element in pairs(element) do
           local prototype = self:getPrototype(element)
           if (not(self.unlock_recipe) or (prototype:getUnlock() == true or filter_show_lock_recipes == true)) and 
@@ -580,7 +600,6 @@ function AbstractSelector:createElementLists(event)
   
   local list_item = self:getListItem()
   local group_selected = User.getParameter("recipe_group_selected")
-  local list_group = self:getListGroup()
 
   if list_group_elements[group_selected] then
     list_item = list_group_elements[group_selected]
@@ -608,18 +627,12 @@ end
 ---@param type string
 ---@param list_products table
 ---@param list_ingredients table
----@param list_translate table
-function AbstractSelector:appendGroups(element, type, list_products, list_ingredients, list_translate)
+function AbstractSelector:appendGroups(element, type, list_products, list_ingredients)
   local prototype = self:getPrototype(element)
   local lua_prototype = prototype:native()
 
   if list_ingredients[lua_prototype.name] == nil then list_ingredients[lua_prototype.name] = {} end
   list_ingredients[lua_prototype.name][lua_prototype.name] = {name=lua_prototype.name, group=prototype:getGroup().name, subgroup=prototype:getSubgroup().name, type=type, order=lua_prototype.order}
-
-  if lua_prototype.localised_name ~= nil then
-    list_translate[element.name] = lua_prototype.localised_name
-  end
-
 end
 
 -------------------------------------------------------------------------------

@@ -28,10 +28,9 @@ end
 ---Update groups
 ---@param list_products table
 ---@param list_ingredients table
----@param list_translate table
-function FluidSelector:updateGroups(list_products, list_ingredients, list_translate)
+function FluidSelector:updateGroups(list_products, list_ingredients)
   for key, fluid in pairs(Player.getFluidPrototypes()) do
-    self:appendGroups(fluid, "fluid", list_products, list_ingredients, list_translate)
+    self:appendGroups(fluid, "fluid", list_products, list_ingredients)
   end
 end
 

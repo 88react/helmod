@@ -31,10 +31,9 @@ end
 ---Update groups
 ---@param list_products table
 ---@param list_ingredients table
----@param list_translate table
-function TechnologySelector:updateGroups(list_products, list_ingredients, list_translate)
+function TechnologySelector:updateGroups(list_products, list_ingredients)
   for key, technology in pairs(Player.getTechnologiePrototypes()) do
-    self:appendGroups(technology, "technology", list_products, list_ingredients, list_translate)
+    self:appendGroups(technology, "technology", list_products, list_ingredients)
   end
 end
 

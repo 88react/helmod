@@ -27,6 +27,7 @@ function EventController.start()
   EventController.pcallEvent(defines.events.on_gui_selected_tab_changed, EventController.onGuiClick)
 
   EventController.pcallEvent(defines.events.on_player_created, EventController.onPlayerCreated)
+  EventController.pcallEvent(defines.events.on_player_removed, EventController.onPlayerRemoved)
   EventController.pcallEvent(defines.events.on_player_joined_game, EventController.onPlayerJoinedGame)
   EventController.pcallEvent(defines.events.on_runtime_mod_setting_changed, EventController.onRuntimeModSettingChanged)
   EventController.pcallEvent(defines.events.on_console_command, EventController.onConsoleCommand)
@@ -106,6 +107,9 @@ end
 ---@param event LuaEvent
 function EventController.onLoad(event)
   Command.start()
+  if not global.is_multiplayer then
+    EventController.pcallEvent(defines.events.on_tick, EventController.onTickOnce)
+  end
 end
 
 -------------------------------------------------------------------------------
@@ -162,6 +166,11 @@ function EventController.onConfigurationChanged(data)
       Controller:cleanController(player)
       Controller:bindController(player)
     end
+    
+    -- Fix double run init if mod apply first time
+    if not data.mod_changes["helmod"].old_version then
+      return
+    end
   end
   
   Cache.reset()
@@ -169,9 +178,9 @@ function EventController.onConfigurationChanged(data)
   for _,player in pairs(game.players) do
     Player.set(player)
     User.resetCache()
-    User.resetTranslate()
+    local data_user = User.get()
+    data_user["translated"] = {}
   end
-  
   Controller:on_init()
 end
 
@@ -267,6 +276,50 @@ function EventController.onPlayerCreated(event)
 end
 
 -------------------------------------------------------------------------------
+---On player removed
+---@param event LuaEvent
+function EventController.onPlayerRemoved(event)
+  global.players[event.player_index] = nil
+end
+
+-------------------------------------------------------------------------------
+---On tick
+---@param event LuaEvent
+function EventController.onTickOnce(event)
+  if global.is_multiplayer == false then
+    EventController.TranslationRefresh(event)
+  end
+  EventController.pcallEvent(defines.events.on_tick, EventController.onTick)
+  EventController.onTick(event)
+end
+-------------------------------------------------------------------------------
+---On player join game (SP or MP) and load game (SP)
+---@param event LuaEvent
+function EventController.TranslationRefresh(event)
+  if #game.connected_players == 1 then
+    for key, language in pairs(global.translation.languages) do
+      for string, _ in pairs(language.requested) do
+        language.queue[string] = true
+        language.requested[string] = nil
+      end
+    end
+  end
+  -- on_tick event for SP
+  local players = game.players
+  -- on_player_joined_game event
+  if event.player_index then
+    players = {[event.player_index]=game.players[event.player_index]}
+  end
+  for index, player in pairs(players) do
+    player.request_translation({"locale.code"})
+    if global.players[index] == nil then
+      global.players[index] = {}
+    end
+    global.players[index].language = nil
+  end
+end
+
+-------------------------------------------------------------------------------
 ---On player join game
 ---@param event LuaEvent
 function EventController.onPlayerJoinedGame(event)
@@ -275,6 +328,8 @@ function EventController.onPlayerJoinedGame(event)
     Controller:bindController(player)
     User.setParameter("next_event", nil)
   end
+  global.is_multiplayer = game.is_multiplayer()
+  EventController.TranslationRefresh(event)
 end
 
 -------------------------------------------------------------------------------

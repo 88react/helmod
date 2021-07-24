@@ -131,6 +131,57 @@ function Controller:on_init()
   for _,form in pairs(forms) do
     form:prepare()
   end
+  global.is_multiplayer = game.is_multiplayer()
+  global.translation = {strings={}, prototype_categories={}, languages={}}
+  global.players = global.players or {}
+  local need_translate = {"entity","item","fluid","recipe","technology"}
+  if not User.getModGlobalSetting("filter_translated_string_active") then
+    table.insert(need_translate,"special")
+    for key, value in pairs(need_translate) do
+      global.translation.prototype_categories[key] = {}
+    end
+    return
+  end
+
+  local special_names = {heat={"tooltip-category.heat"}, electricity={"tooltip-category.electricity"}}
+
+  local function addString(name, category, localised_string)
+    local strings = global.translation.strings
+    local categories = global.translation.prototype_categories
+    local id
+    if type(localised_string) == "table" then
+      id = game.table_to_json(localised_string)
+    else
+      id = tostring(localised_string)
+    end
+
+    if strings[id] == nil then
+      strings[id] = {prototypes={}, translated={}, localised=localised_string}
+      if type(localised_string) == "table" then
+        strings[id].localised = table.deepcopy(localised_string)
+      end
+    end
+    if strings[id].prototypes[name] == nil then
+      strings[id].prototypes[name] = {}
+    end
+    if strings[id].prototypes[name][category] == nil then
+      strings[id].prototypes[name][category] = true
+    end
+    categories[category][name] = strings[id].translated
+  end
+
+  for _, key in pairs(need_translate) do
+    global.translation.prototype_categories[key] = {}
+    for name, prototype in pairs(game[key.."_prototypes"]) do
+      -- translation
+      addString(name, key, prototype.localised_name)
+    end
+  end
+
+  global.translation.prototype_categories["special"] = {}
+  for name, value in pairs(special_names) do
+    addString(name, "special", value)
+  end
 end
 -------------------------------------------------------------------------------
 ---Bind Dispatcher
@@ -312,7 +363,45 @@ end
 ---@param event table {player_index=number, localised_ string=string, result=string, translated=boolean}
 ---
 function Controller:onStringTranslated(event)
-  User.addTranslate(event)
+  local player_data = global.players[event.player_index]
+  local languages_data = global.translation.languages
+  local strings_data = global.translation.strings
+
+  if event.localised_string[1] == "locale.code" then
+    if player_data.language ~= nil then return end
+    player_data.language = event.result
+    -- new language
+    if languages_data[event.result] == nil then
+      languages_data[event.result] = {done=false, queue={}, requested={}}
+      --fill queue
+      local queue = languages_data[event.result].queue
+      for key, value in pairs(strings_data) do
+        queue[key] = true
+      end
+    end
+    return
+  end
+  if player_data == nil or player_data.language == nil then return end
+  if languages_data[player_data.language].done == true then return end
+  local language = player_data.language
+
+  local id
+  if type(event.localised_string) == "table" then
+    id = game.table_to_json(event.localised_string)
+  else
+    id = tostring(event.localised_string)
+  end
+  if strings_data[id] == nil then return end
+  -- skip Unknown keys
+  if event.translated == true then
+    strings_data[id].translated[language] = event.result
+  end
+  languages_data[language].requested[id] = nil
+  languages_data[language].queue[id] = nil
+  if table.size(languages_data[language].requested) == 0 and
+  table.size(languages_data[language].queue) == 0 then
+    languages_data[language].done = true
+  end
 end
 
 -------------------------------------------------------------------------------

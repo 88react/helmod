@@ -41,8 +41,7 @@ end
 ---@param type string
 ---@param list_products table
 ---@param list_ingredients table
----@param list_translate table
-function EnergySelector:appendGroups(element, type, list_products, list_ingredients, list_translate)
+function EnergySelector:appendGroups(element, type, list_products, list_ingredients)
   local prototype = self:getPrototype(element, type)
 
   local lua_prototype = prototype:native()
@@ -50,11 +49,6 @@ function EnergySelector:appendGroups(element, type, list_products, list_ingredie
   for key, element in pairs(prototype:getRawProducts()) do
     if list_products[element.name] == nil then list_products[element.name] = {} end
     list_products[element.name][prototype_name] = {name=lua_prototype.name, group=lua_prototype.group.name, subgroup=lua_prototype.subgroup.name, type=type, order=lua_prototype.order}
-    
-    local localised_name = Product(element):getLocalisedName()
-    if localised_name ~= nil and localised_name ~= "unknow" then
-      list_translate[element.name] = localised_name
-    end
   end
   for key, element in pairs(prototype:getRawIngredients()) do
     if list_ingredients[element.name] == nil then list_ingredients[element.name] = {} end
@@ -67,10 +61,9 @@ end
 ---Update groups
 ---@param list_products table
 ---@param list_ingredients table
----@param list_translate table
-function EnergySelector:updateGroups(list_products, list_ingredients, list_translate)
+function EnergySelector:updateGroups(list_products, list_ingredients)
   for key, entity in pairs(Player.getEnergyMachines()) do
-    self:appendGroups(entity, "energy", list_products, list_ingredients, list_translate)
+    self:appendGroups(entity, "energy", list_products, list_ingredients)
   end
 end
 
